@@ -77,6 +77,9 @@ a{color:inherit}
   clip-path:polygon(0 0,calc(100% - 8px) 0,100% 8px,100% 100%,8px 100%,0 calc(100% - 8px))}
 .chip:hover{box-shadow:inset 0 0 0 1px var(--neon)}
 .try-status{flex:1 1 220px;min-width:0;margin:0;font-size:14px;color:var(--paper-dim)}
+.chip[aria-pressed="true"]{box-shadow:inset 0 0 0 1px var(--neon);color:var(--neon)}
+.try-frame{display:none;flex:1 1 100%;flex-wrap:wrap;align-items:center;gap:10px 18px;padding-top:12px;border-top:1px solid var(--line)}
+@media (max-width:1019px){.try-frame{display:flex}}
 
 /* ---------- works ---------- */
 .works{padding-block:clamp(28px,5vw,72px) clamp(48px,7vw,104px)}
@@ -134,6 +137,15 @@ PAGE_JS = r"""
       hero.scrollIntoView({ block: 'nearest' });
       status.textContent = SAY[b.dataset.act] + ' Parte appena lui finisce il tratto.';
       timer = setTimeout(function () { status.textContent = 'Puoi anche toccare il gatto direttamente.'; }, 9000);
+    });
+  });
+  // ---- preview only: the two framings of the header on narrow screens (see hero.css)
+  var frames = document.querySelectorAll('[data-frame]');
+  frames.forEach(function (b) {
+    b.addEventListener('click', function () {
+      if (b.dataset.frame) hero.setAttribute('data-cm-frame', b.dataset.frame); else hero.removeAttribute('data-cm-frame');
+      frames.forEach(function (o) { o.setAttribute('aria-pressed', String(o === b)); });
+      hero.scrollIntoView({ block: 'nearest' });
     });
   });
 
@@ -260,7 +272,11 @@ def body():
         '<div class="try-btns"><button type="button" class="chip" id="act-observe" data-act="observe">Osservare</button>'
         '<button type="button" class="chip" id="act-attention" data-act="attention">Chiedere coccole</button>'
         '<button type="button" class="chip" id="act-disturb" data-act="disturb">Disturbare</button></div>'
-        '<p class="try-status" id="try-status" aria-live="polite">Puoi anche toccare il gatto direttamente.</p></div>'
+        '<p class="try-status" id="try-status" aria-live="polite">Puoi anche toccare il gatto direttamente.</p>'
+        '<div class="try-frame"><span class="mono">Formato su schermi stretti</span>'
+        '<div class="try-btns" role="group" aria-label="Formato dell\'header su schermi stretti">'
+        '<button type="button" class="chip" data-frame="" aria-pressed="true">Più alto</button>'
+        '<button type="button" class="chip" data-frame="wide" aria-pressed="false">Scena intera</button></div></div></div>'
         '</div></section>\n',
         '<section class="works" id="opere"><div class="wrap">'
         '<div class="works-head"><h2 class="mono">Opere selezionate</h2>'

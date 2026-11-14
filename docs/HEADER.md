@@ -53,12 +53,16 @@ L'illustrazione è larga 2171 "unità" e alta 724. Tutto è impaginato in unità
 | Larghezza | Comportamento |
 |---|---|
 | ≥ 1020 px | Panorama intero, proporzione 3:1. |
-| < 1020 px | Altezza `min(56vw, 340px)`; l'inquadratura si stringe su artista e gatto (centrata sull'unità 1290), i lati escono dal quadro. |
+| 425–1019 px | Altezza fissa di 340 px: l'inquadratura parte da artista e gatto e si allarga con lo schermo fino al panorama intero. |
+| < 425 px (telefoni in verticale) | Formato 5:4, alto l'80% della larghezza: artista, foglio e muso del gatto. Si vedono 905 unità su 2171, la coda e il neon restano fuori. |
 
-Su un telefono da 390 px l'header è alto 218 px e mostra circa il 60% della scena, attorno ad artista e gatto.
+Su un telefono da 390 px l'header è alto 312 px. Su uno schermo basso (telefono in orizzontale) non supera il 72% dell'altezza e torna a mostrare quasi tutto il panorama.
 
-> **Aperto:** il committente ha chiesto un formato "più portrait" su smartphone. Questa è una prima lettura (ritaglio più stretto, stessa scena).
-> Un header davvero verticale richiede di estendere l'illustrazione in altezza o di far muovere l'inquadratura.
+Esiste un secondo formato per schermi stretti, più basso ma con il gatto intero: `data-cm-frame="wide"` sul blocco dell'header
+lo porta al 56% della larghezza (218 px a 390 px), con artista e gatto per intero. La pagina di anteprima ha un interruttore per provarli entrambi.
+
+> **Aperto:** il committente ha chiesto un formato "più portrait" su smartphone. Il 5:4 è la proposta; resta da scegliere tra questo e la scena intera.
+> Un header ancora più verticale richiede di estendere l'illustrazione in altezza o di far muovere l'inquadratura tra artista e gatto.
 
 ## Fallback e accessibilità
 

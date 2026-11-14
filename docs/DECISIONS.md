@@ -26,14 +26,16 @@ Formato: data — decisione — motivo. Le decisioni aperte stanno in fondo.
 - Palette e token di `DESIGN.md` ("Low poly notturno"): fondo `#141112`, carta `#F3DDD0`, accento arancio neon `#FF8A4C`.
 - Angoli tagliati al posto degli angoli arrotondati; filetto con il battito nei titoli di sezione.
 - La barra del menu sta sopra l'header e non lo copre.
-- Su smartphone l'header è un ritaglio 16:9 circa su artista e gatto (218 px di altezza a 390 px di larghezza).
+- Su smartphone l'header è in formato 5:4 (312 px di altezza a 390 px di larghezza) e inquadra artista, foglio e muso del gatto.
+  In alternativa `data-cm-frame="wide"` mostra la scena intera in un formato più basso (218 px). L'anteprima permette di provarli entrambi.
 - Tocco sul gatto: fa partire "chiede attenzioni" o "disturba".
 - Manifesto segnaposto senza prima persona: "Gatti a grafite. Un pelo alla volta."
 
 ## Aperte
 
 - **Approvazione dell'header** da parte del committente (anteprima del 14/11/2026).
-- Header su smartphone: basta il ritaglio o serve un formato davvero verticale (illustrazione estesa in altezza o inquadratura che si muove)?
+- Header su smartphone: 5:4 sull'artista e sul muso del gatto, oppure scena intera più bassa? Serve un formato ancora più verticale
+  (illustrazione estesa in altezza o inquadratura che si muove)?
 - Vettoriale della firma per il logo.
 - Stack del sito: Astro proposto in `TECH.md`, da confermare all'avvio.
 - Shop: link esterno o vetrina interna; prezzi e disponibilità delle opere.

@@ -1,11 +1,17 @@
 /* ---------- animated header ---------- */
 /* The picture is 2171 x 724 "stage units". --u is the length of one unit: the stage always covers the header, and every
    piece is laid out in units, so nothing is scaled after it has been painted. Wide screens show the whole panorama;
-   narrower ones keep the height up and frame the artist and the cat (--cx is the unit the view centres on).
+   narrower ones keep the height up and frame part of the scene (--cx is the unit the view centres on).
    --u is left unregistered on purpose: each use resolves the container units itself, which every browser with
    container queries does, registered custom properties or not. */
 .cm-hero{position:relative;overflow:hidden;width:100%;aspect-ratio:2171/724;background:#191516;isolation:isolate;container-type:size}
-@media (max-width:1019px){.cm-hero{aspect-ratio:auto;height:min(56vw,340px)}}
+/* Below 1020 px. Default framing: tall, on the artist, the sheet and the front of the cat (a phone shows 905 units).
+   data-cm-frame="wide": lower, with the whole cat in view (1293 units). Never taller than 72% of a short (landscape) screen. */
+@media (max-width:1019px){
+  .cm-hero{aspect-ratio:auto;height:min(80vw,340px);height:min(80vw,340px,72svh)}
+  .cm-hero[data-cm-frame="wide"]{height:min(56vw,340px);height:min(56vw,340px,72svh)}
+}
+@media (max-width:480px){.cm-hero:not([data-cm-frame="wide"]) .cm-stage{--cx:1250}}
 .cm-stage{--u:max(calc(100cqw / 2171),calc(100cqh / 724));--cx:1290;position:absolute;bottom:0;
   left:clamp(calc(100cqw - 2171 * var(--u)),calc(50cqw - var(--cx) * var(--u)),0px);width:calc(2171 * var(--u));height:calc(724 * var(--u));
   contain:layout style;-webkit-user-select:none;user-select:none}

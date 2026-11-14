@@ -31,6 +31,8 @@ Non sono nel repository, che è pubblico: `ref/` (l'immagine di riferimento), `o
 - Lo script parte da solo. Con `prefers-reduced-motion` lascia l'immagine ferma sul disegno finito.
 - Per far partire un comportamento del gatto: `hero.dispatchEvent(new CustomEvent('cm:act', { detail: 'attention' }))`
   (`observe`, `attention` o `disturb`). Parte alla fine del tratto in corso.
+- Su schermi stretti l'header è in formato 5:4 e inquadra artista, foglio e muso del gatto. Con `data-cm-frame="wide"` sul blocco
+  diventa più basso e mostra la scena intera.
 - L'attributo `data-cm-manual` sul blocco impedisce l'avvio automatico: lo usano i controlli, che pilotano le pose con `window.__cm`.
 
 ## Ricostruire l'header
