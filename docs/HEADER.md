@@ -35,7 +35,8 @@ Escono a giri di tre, in ordine casuale: in ogni giro ciascuno compare una volta
 | **Chiede attenzioni** (`attention`) | Si strofina due volte contro l'avambraccio e alza lo sguardo. L'artista solleva la penna, si gira, lo accarezza tre volte dalla testa verso la schiena; il gatto chiude gli occhi. Poi tutti e due tornano al lavoro. | ~9 s |
 | **Disturba** (`disturb`) | Punta il foglio, allunga una zampa sull'angolo e lo tira due volte. L'artista si ferma, fa scivolare la mano sinistra sotto il muso del gatto, gli riaccompagna la zampa al suo posto e raddrizza il foglio. Il gatto guarda altrove, offeso, con la coda che frusta. | ~7 s |
 
-A disegno finito l'artista e il gatto lo guardano per un paio di secondi, la mano sinistra liscia il foglio e la pagina torna bianca.
+A disegno finito l'artista e il gatto lo guardano per un paio di secondi; poi la mano sinistra dà una spinta al foglio, che scivola sul tavolo
+verso chi guarda ed esce dal quadro in basso, dove comincia la galleria. Sotto c'è un foglio pulito e il disegno ricomincia.
 
 ## Interazione
 
@@ -79,10 +80,11 @@ lo porta al 56% della larghezza (218 px a 390 px), con artista e gatto per inter
 ## Vincoli e misure
 
 - Nessuna dipendenza a runtime: HTML + CSS + un file JS.
-- Peso attuale: markup dell'header 630 KB (179 KB gzip), JS 30 KB (9 KB gzip), CSS 5 KB. Il limite di 150 KB gzip per il JS è rispettato con largo margine;
+- Peso attuale: markup dell'header 630 KB (179 KB gzip), JS 32 KB (10 KB gzip), CSS 5 KB. Il limite di 150 KB gzip per il JS è rispettato con largo margine;
   il markup è il costo vero e va servito compresso.
 - L'header è nell'HTML: è lui il primo paint, senza immagini da aspettare.
-- Si muovono solo trasformazioni e opacità di livelli già disegnati. In Chromium senza GPU: 60 fps a 1440 px e su telefono (390 px a 3x), qualche fotogramma a 30 fps a 1920 px.
+- I pezzi grandi si muovono solo con trasformazioni e opacità di livelli già disegnati; si ridisegnano solo le parti piccole
+  (tratto di matita, vapore, manica, zampa, foglio che scivola). In Chromium senza GPU: 60 fps a 1440 px e su telefono (390 px a 3x), qualche fotogramma a 30 fps a 1920 px.
 - Fedeltà al riferimento, in posa di riposo: errore medio assoluto 3,2 su 255 per canale (foglio escluso, perché nell'header parte bianco).
 - Provato solo in Chromium. Safari e Firefox sono da verificare su dispositivi veri.
 
@@ -90,5 +92,4 @@ lo porta al 56% della larghezza (218 px a 390 px), con artista e gatto per inter
 
 - La mano sinistra "si gira" con un ribaltamento: si stringe fino a un terzo e in un fotogramma passa dall'altra parte del polso.
 - La zampa che si allunga è disegnata a mano (due facce, con i colori del tratto di zampa che si vede nell'illustrazione): è più semplice del resto del gatto.
-- Il foglio si pulisce con una dissolvenza sotto la mano, non c'è un vero cambio pagina.
 - Il nome in alto e la firma nel footer dell'anteprima sono composti con un font: segnaposto in attesa del vettoriale della firma.

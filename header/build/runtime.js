@@ -60,8 +60,8 @@
     // cat
     catX: 0, catY: 0, cHeadRot: 0, cHeadX: 0, cHeadY: 0, cHeadTilt: 0, track: 1,
     tail: 0, tailAmp: 1, tailSpeed: 1, pawX: 0, pawY: 0, pawRot: 0, eye: 0, blink: 0,
-    // sheet + drawing
-    shX: 0, shY: 0, shRot: 0, ink: 1
+    // sheet + drawing (page: 1 = the page he draws on lies on the pad; larger = it is sliding off, towards the viewer)
+    shX: 0, shY: 0, shRot: 0, page: 1
   };
   var REST = JSON.parse(JSON.stringify(S));
   var stroke = null;          // {el, len, p}
@@ -87,7 +87,7 @@
   var look = 0, lastEye = -1, tailPhase = 0, lastT = 0;
   var el = {
     shR: Q('#cmShR'), shL: Q('#cmShL'), leg: Q('#cmLeg'), legL: Q('#cmLegL'), legS: Q('#cmLegS'), pawSh: Q('#cmPawSh'), slv: Q('#cmSlv'), slvF: Q('#cmSlvF'), slvC: Q('#cmSlvC'), slvR: Q('#cmSlvR'),
-    steam: [].slice.call(stage.querySelectorAll('#cmSteam polygon')), ink: Q('#cmInk')
+    steam: [].slice.call(stage.querySelectorAll('#cmSteam polygon')), ink: Q('#cmInk'), page: Q('#cmPage'), pageEdge: Q('#cmPageEdge')
   };
   var steamBase = el.steam.map(function (p) { return p.getAttribute('points').trim().split(/\s+/).map(function (s) { var a = s.split(','); return [+a[0], +a[1]]; }); });
 
@@ -176,7 +176,13 @@
       }
       el.steam[i].setAttribute('points', s);
     }
-    if (el.ink.__o !== S.ink) { el.ink.__o = S.ink; el.ink.style.opacity = S.ink.toFixed(3); }
+    // ---- the finished page slides across the table towards the viewer: it grows away from the point its sides run to
+    if (el.page.__k !== S.page) {
+      var k = el.page.__k = S.page, V = RIG.sheetVanish;
+      if (k === 1) el.page.removeAttribute('transform');
+      else el.page.setAttribute('transform', 'translate(' + (V.x * (1 - k)).toFixed(2) + ',' + (V.y * (1 - k)).toFixed(2) + ') scale(' + k.toFixed(4) + ')');
+      el.pageEdge.setAttribute('opacity', (0.34 * clamp((k - 1) * 14, 0, 1)).toFixed(2));
+    }
   }
 
   /* Sleeve of the lifted left arm: a low-poly tapered shape between elbow and wrist, with its cuff. */
@@ -394,7 +400,8 @@
         }
         await wait(rand(0.04, 0.3));
       }
-      // finished: he and the cat look at it for a moment, then the page is cleared for the next one
+      // finished: he and the cat look at it for a moment, then he slides the page off the pad, across the table and out
+      // towards the viewer (the gallery is right under the header), and starts again on the clean sheet underneath
       while (busy) await wait(0.2);
       await tw(S, { penUp: 1 }, 0.2, E.out);
       tw(S, { penX: J.tip.x - 40, penY: J.tip.y - 8 }, 0.7);
@@ -402,14 +409,18 @@
       tw(S, { cHeadRot: -7, cHeadX: -8, cHeadY: 6 }, 0.7, E.io);
       await tw(S, { headRot: -2, headY: 1.5, nod: 0.3 }, 0.6, E.io);
       await wait(2.4);
-      tw(S, { cHeadRot: 0, cHeadX: 0, cHeadY: 0 }, 0.8, E.io);
       tw(S, { lhShadow: 0 }, 0.2);
-      await tw(S, { lhy: J.lwrist.y - 7, lhx: J.lwrist.x + 26, lhRot: 2 }, 0.3, E.out);  // the left hand smooths the sheet...
-      tw(S, { ink: 0 }, 0.9, E.io);                                                       // ...and the page is fresh again
-      await tw(S, { lhx: J.lwrist.x - 70, lhy: J.lwrist.y - 3 }, 0.65, E.io);
-      await tw(S, { lhx: J.lwrist.x, lhy: J.lwrist.y, lhRot: 0 }, 0.5, E.io);
+      await tw(S, { lhx: J.lwrist.x - 8, lhy: J.lwrist.y + 7, lhRot: 2 }, 0.28, E.io);    // the left hand flattens on the page...
+      tw(S, { lhx: J.lwrist.x + 8, lhy: J.lwrist.y + 24, lhRot: 4 }, 0.26, E.in);         // ...and gives it a push
+      await tw(S, { page: 1.16 }, 0.26, E.in);
+      tw(S, { cHeadRot: 4, cHeadX: 2, cHeadY: -2 }, 0.5, E.io);                            // the cat watches it go
+      tw(S, { lhx: J.lwrist.x, lhy: J.lwrist.y - 8, lhRot: -2 }, 0.45, E.out);
+      await tw(S, { page: 1.96 }, 0.43, E.lin);                                            // it carries on at that speed and leaves the picture
+      inkReset(false); S.page = 1;
+      await tw(S, { lhy: J.lwrist.y, lhRot: 0 }, 0.2, E.in);
       tw(S, { lhShadow: 1 }, 0.25);
-      inkReset(false); S.ink = 1; S.track = 1;
+      S.track = 1;
+      tw(S, { cHeadRot: 0, cHeadX: 0, cHeadY: 0 }, 0.8, E.io);
       tw(S, { headRot: 0, headY: 0, nod: 1 }, 0.6, E.io);
       await wait(0.6);
     }

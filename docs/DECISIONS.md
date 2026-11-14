@@ -29,6 +29,7 @@ Formato: data — decisione — motivo. Le decisioni aperte stanno in fondo.
 - Su smartphone l'header è in formato 5:4 (312 px di altezza a 390 px di larghezza) e inquadra artista, foglio e muso del gatto.
   In alternativa `data-cm-frame="wide"` mostra la scena intera in un formato più basso (218 px). L'anteprima permette di provarli entrambi.
 - Tocco sul gatto: fa partire "chiede attenzioni" o "disturba".
+- A disegno finito il foglio scivola fuori dall'header verso il basso, dove comincia la galleria: il disegno "va" tra le opere.
 - Manifesto segnaposto senza prima persona: "Gatti a grafite. Un pelo alla volta."
 
 ## Aperte

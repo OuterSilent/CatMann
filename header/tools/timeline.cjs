@@ -11,9 +11,9 @@ const path = require('path');
   let prev = '';
   for (let t = 0; t < secs; t += 0.5) {
     await p.evaluate('__cm.run(0.5, 30)');
-    const s = await p.evaluate(`(function(){ var S = __cm.S; return [__cm.strokes.filter(function(s){return s.p>=1}).length, __cm.isBusy() ? 1 : 0, S.ink.toFixed(2), S.eye.toFixed(1), Math.round(S.pawX), Math.round(S.lhx), Math.round(S.cHeadTilt), Math.round(S.headRot)].join(' ') })()`);
+    const s = await p.evaluate(`(function(){ var S = __cm.S; return [__cm.strokes.filter(function(s){return s.p>=1}).length, __cm.isBusy() ? 1 : 0, S.page.toFixed(2), S.eye.toFixed(1), Math.round(S.pawX), Math.round(S.lhx), Math.round(S.cHeadTilt), Math.round(S.headRot)].join(' ') })()`);
     const key = s.split(' ').slice(1).join(' ');
-    if (key !== prev) { console.log((t + 0.5).toFixed(1).padStart(6), 'strokes busy ink eye pawX lhx tilt headRot:', s); prev = key; }
+    if (key !== prev) { console.log((t + 0.5).toFixed(1).padStart(6), 'strokes busy page eye pawX lhx tilt headRot:', s); prev = key; }
   }
   await b.close();
 })();
