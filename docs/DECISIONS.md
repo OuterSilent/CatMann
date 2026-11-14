@@ -4,16 +4,40 @@ Formato: data — decisione — motivo. Le decisioni aperte stanno in fondo.
 
 ## Prese
 
-- **2026-11-13** — Direzione visiva "Grafite di notte": base scura, opere su carta chiara, un solo accento rosso (`--c-vinyl`). — Coerente con il profilo Instagram (B/N, giacche nere, etichetta CBS rossa).
-- **2026-11-13** — Header animato "Lo sguardo": occhi di gatto a grafite che si disegnano e seguono il cursore, firma che si scrive, glint degli strass. — Richiesta di un header forte; riprende la foto profilo dell'artista.
 - **2026-11-13** — La firma "Cosmin Mann Art" è il logo. — È già il suo segno distintivo.
 - **2026-11-13** — Sito solo in tema scuro. — Identità.
 - **2026-11-13** — Italiano lingua principale, inglese seconda.
+- **2026-11-14** — Nuovo header "L'artista e il gatto": l'artista disegna un gatto sul foglio e il gatto vero accanto a lui
+  osserva, chiede attenzioni (ricambiate con dolcezza) o disturba (e viene scansato con gentilezza). Parte dall'illustrazione
+  di riferimento fornita dal committente. — Richiesta del committente. **Sostituisce "Lo sguardo"** (occhi di gatto a grafite che seguono il cursore).
+- **2026-11-14** — Tutto il sito nello stile dell'illustrazione (low poly, interno notturno caldo, neon). — Richiesta del committente.
+  **Sostituisce "Grafite di notte"** (monocromo con un solo accento rosso `--c-vinyl`) e toglie il divieto di neon.
+- **2026-11-14** — Sotto l'header c'è di default la galleria delle opere; il sito ha un menu e un link allo shop dei disegni fisici,
+  per ora fittizio. — Richiesta del committente.
+- **2026-11-14** — Formati: panorama largo su desktop, inquadratura più verticale su smartphone. — Richiesta del committente, "correggeremo successivamente".
+- **2026-11-14** — Header in **SVG**, ricalcato pezzo per pezzo dall'illustrazione e animato a ritaglio; niente 3D né WebGL.
+  — Un primo tentativo in 3D (modelli in Blender, resa in Three.js) è stato scartato dal committente: il risultato era lontano
+  dall'immagine. La consegna è diventata "riproviamo in SVG, attieniti di più all'immagine".
+- **2026-11-14** — L'immagine di riferimento non entra nel repository. Si pubblicano solo i vettori ricalcati (`header/data`). — Il repository è pubblico.
+- **2026-11-14** — Si costruisce una parte nuova del sito solo dopo un via libera esplicito del committente. — Regola di lavoro del committente.
+
+## Proposte nell'anteprima, da confermare
+
+- Palette e token di `DESIGN.md` ("Low poly notturno"): fondo `#141112`, carta `#F3DDD0`, accento arancio neon `#FF8A4C`.
+- Angoli tagliati al posto degli angoli arrotondati; filetto con il battito nei titoli di sezione.
+- La barra del menu sta sopra l'header e non lo copre.
+- Su smartphone l'header è un ritaglio 16:9 circa su artista e gatto (218 px di altezza a 390 px di larghezza).
+- Tocco sul gatto: fa partire "chiede attenzioni" o "disturba".
+- Manifesto segnaposto senza prima persona: "Gatti a grafite. Un pelo alla volta."
 
 ## Aperte
 
-- Stack: Astro + GSAP + OGL proposto in `TECH.md`, da confermare all'avvio dello sviluppo.
+- **Approvazione dell'header** da parte del committente (anteprima del 14/11/2026).
+- Header su smartphone: basta il ritaglio o serve un formato davvero verticale (illustrazione estesa in altezza o inquadratura che si muove)?
+- Vettoriale della firma per il logo.
+- Stack del sito: Astro proposto in `TECH.md`, da confermare all'avvio.
+- Shop: link esterno o vetrina interna; prezzi e disponibilità delle opere.
 - Hosting e dominio.
-- Commissioni e vendita: sezione dedicata sì/no.
-- Asset degli occhi per l'header: disegno apposito dell'artista (preferito) o ritaglio da opere esistenti.
+- Commissioni: sezione dedicata sì/no.
 - One-page iniziale o sito multipagina da subito.
+- Verifica dell'header su Safari e Firefox e su telefoni veri.

@@ -1,58 +1,90 @@
-# Header animato — "Lo sguardo"
+# Header animato — "L'artista e il gatto"
 
-L'header è la firma del sito: deve fermare chi arriva per qualche secondo e dire subito *grafite, gatti, glamour*.
-Occupa il 100% della viewport (`100svh`) nella home.
+L'header è la firma del sito. È un'illustrazione low poly animata: Cosmin, cuffie e occhiali scuri, disegna un gatto a matita
+al tavolo di un locale; accanto a lui il gatto vero non sta fermo. Sta in cima alla home, da bordo a bordo, e sotto comincia subito la galleria.
 
-## Concept
+Sostituisce il concept "Lo sguardo" del 13/11/2026 (vedi `DECISIONS.md`). Come è costruito e come si rifà: [`header/README.md`](../header/README.md).
 
-Ispirato alla foto profilo in cui Cosmin si copre il volto con un paio di occhi di gatto disegnati.
-Sullo schermo nero appare, **tratto dopo tratto**, uno sguardo felino a grafite. Gli occhi si aprono e **seguono il cursore**.
-Poi la firma "Cosmin Mann Art" si scrive da sola e un paio di scintille (gli strass) le passano sopra.
+## La scena
 
-## Sequenza (prima visita)
+Ricalcata dall'illustrazione di riferimento fornita dal committente (2171 × 724 px, non pubblicata nel repository), pezzo per pezzo:
 
-| t (ms) | Cosa succede |
+- **Sfondo** leggermente fuori fuoco: vetrata al tramonto, sagome dei clienti, lampade, cassa acustica, mensola, stampe alla parete.
+- **Neon** a forma di battito cardiaco sulla parete di destra.
+- **L'artista:** busto con felpa, braccio destro in tre pezzi (spalla, avambraccio, mano con la penna), mano sinistra appoggiata sul foglio, testa.
+- **Il gatto** sul tavolo a destra: corpo, testa, coda, zampa anteriore.
+- **Tavolo** con foglio, tazza fumante, stampe, pennarelli, pila di libri.
+- **Primo piano** fuori fuoco: pianta a sinistra, macchina fotografica.
+
+## Cosa succede
+
+Il ciclo dura circa 65–70 secondi e poi ricomincia con un foglio pulito.
+
+| Chi | Cosa fa |
 |---|---|
-| 0 | Schermo `--c-night` con grana. Un cursore-matita (punto) al centro. |
-| 0–1600 | Il disegno degli occhi emerge: i tratti di grafite compaiono da un rumore (shader di reveal guidato da una mappa di "ordine dei tratti") o, in fallback, da maschere SVG. |
-| 1600–2200 | Le pupille si stringono (come un gatto sorpreso dalla luce) e si posizionano verso il cursore. |
-| 1800–3000 | La firma SVG si disegna (animazione `stroke-dashoffset`), colore `--c-paper`. |
-| 3000–3400 | Un glint attraversa la firma da sinistra a destra (strass). |
-| 3400 | Compaiono la nav e un indicatore di scroll in mono: `SCROLL — № 01–13`. |
+| **Artista** | Disegna un muso di gatto in 27 tratti: le due linee di costruzione, orecchie e contorno, occhi e pupille, naso e bocca, il tratteggio delle ombre e per ultimi i baffi. La penna segue ogni tratto. Respira, muove la testa a tempo (92 bpm, il doppio del battito del neon), ogni tanto alza lo sguardo sul modello. |
+| **Gatto** | Segue la penna con la testa, muove la coda, sbatte le palpebre ogni 2,5–6 s. |
+| **Ambiente** | Il neon pulsa (un battito ogni 1,3 s) e un lampo corre lungo la traccia; il vapore sale dalla tazza. |
 
-Visite successive nella stessa sessione: sequenza accorciata a ~1200 ms (`sessionStorage`).
-La sequenza si può saltare con click, tasto o scroll.
+Il primo comportamento del gatto arriva dopo 5–7 secondi; poi ne parte uno nuovo 6,5–10 secondi dopo la fine del precedente, sempre al termine di un tratto.
+Escono a giri di tre, in ordine casuale: in ogni giro ciascuno compare una volta.
+
+| Comportamento | Sequenza | Durata |
+|---|---|---|
+| **Osserva** (`observe`) | Si sporge verso il foglio, inclina la testa da una parte e dall'altra, torna a posto. L'artista continua a disegnare. | 5–6 s |
+| **Chiede attenzioni** (`attention`) | Si strofina due volte contro l'avambraccio e alza lo sguardo. L'artista solleva la penna, si gira, lo accarezza tre volte dalla testa verso la schiena; il gatto chiude gli occhi. Poi tutti e due tornano al lavoro. | ~9 s |
+| **Disturba** (`disturb`) | Punta il foglio, ci mette una zampa sull'angolo e lo tira due volte. L'artista si ferma, gli sposta la zampa con la mano sinistra e raddrizza il foglio. Il gatto guarda altrove, offeso, con la coda che frusta. | ~7 s |
+
+A disegno finito l'artista e il gatto lo guardano per un paio di secondi, la mano sinistra liscia il foglio e la pagina torna bianca.
 
 ## Interazione
 
-- **Mouse:** le pupille seguono il cursore con inerzia (lerp ~0.08). Avvicinandosi agli occhi le pupille si stringono.
-- **Click/tap sugli occhi:** il gatto sbatte le palpebre (blink 180 ms). Easter egg: 5 click di fila → un breve "miao" visivo (orecchie che si muovono), senza audio.
-- **Touch / mobile:** gli occhi seguono l'orientamento del dispositivo se disponibile e consentito, altrimenti un lento movimento "idle" che guarda intorno.
-- **Scroll:** la grafite si "sfuma" (dissolve verso la carta) mentre l'header scorre via, con un leggero parallax; la prima opera della sezione successiva entra dallo stesso punto in cui c'erano gli occhi.
-- **Idle (> 6 s fermo):** le pupille si dilatano lentamente, poi un blink.
+- **Puntatore (mouse):** leggero effetto di profondità. Lo sfondo scorre contro il puntatore, pianta e macchina fotografica lo seguono. Niente su touch.
+- **Scroll:** mentre l'header esce, sfondo e primo piano si separano di qualche pixel.
+- **Tocco o clic sul gatto:** se è libero, parte "chiede attenzioni" (6 volte su 10) oppure "disturba". È un pulsante vero, raggiungibile da tastiera.
+- **Pausa:** pulsante in basso a destra dell'illustrazione, ferma tutto e fa ripartire.
+- **Da codice:** `hero.dispatchEvent(new CustomEvent('cm:act', { detail: 'observe' | 'attention' | 'disturb' }))` mette in coda un comportamento.
+  La pagina di anteprima lo usa per i tre pulsanti di prova.
 
-## Implementazione consigliata
+## Formati
 
-- **WebGL** (OGL o Three.js minimale) con un unico fragment shader:
-  - texture del disegno degli occhi (grafite su trasparente) + mappa "ordine dei tratti" in scala di grigi per il reveal;
-  - pupille come forme separate (SDF) per poterle muovere e scalare;
-  - grana e leggera vibrazione della grafite (noise animato a bassa ampiezza).
-- **Firma:** SVG inline separato, animato con GSAP o Web Animations API.
-- **Glint:** gradiente lineare in un layer con `mix-blend-mode: screen`, mascherato sulla firma.
-- **Asset di partenza:** finché non c'è un disegno degli occhi fatto da Cosmin, usare un ritaglio dei suoi disegni (occhi dei gatti) o un segnaposto. **L'ideale è commissionargli un disegno apposito degli occhi, su carta bianca, scansionato ad alta risoluzione.**
+L'illustrazione è larga 2171 "unità" e alta 724. Tutto è impaginato in unità (`--u`), quindi si ridisegna nitido a ogni dimensione.
 
-## Fallback
+| Larghezza | Comportamento |
+|---|---|
+| ≥ 1020 px | Panorama intero, proporzione 3:1. |
+| < 1020 px | Altezza `min(56vw, 340px)`; l'inquadratura si stringe su artista e gatto (centrata sull'unità 1290), i lati escono dal quadro. |
+
+Su un telefono da 390 px l'header è alto 218 px e mostra circa il 60% della scena, attorno ad artista e gatto.
+
+> **Aperto:** il committente ha chiesto un formato "più portrait" su smartphone. Questa è una prima lettura (ritaglio più stretto, stessa scena).
+> Un header davvero verticale richiede di estendere l'illustrazione in altezza o di far muovere l'inquadratura.
+
+## Fallback e accessibilità
 
 | Condizione | Comportamento |
 |---|---|
-| `prefers-reduced-motion` | Immagine statica degli occhi + firma già disegnata, dissolvenza 200 ms. |
-| WebGL non disponibile / errore | Versione SVG/CSS: reveal con maschere, pupille SVG che seguono il cursore. |
-| JS disabilitato | Immagine statica + firma, contenuto completamente accessibile. |
-| Connessione lenta (`saveData` o `effectiveType` 2g/3g) | Fallback SVG, niente shader. |
+| `prefers-reduced-motion` | Immagine ferma con il disegno già finito; neon acceso senza pulsare; nessun pulsante di pausa. |
+| JS disabilitato o in errore | La scena è HTML e SVG in linea: si vede intera, ferma, con il foglio bianco. |
+| Header fuori dallo schermo o scheda nascosta | L'animazione si ferma (`IntersectionObserver`, `visibilitychange`) e riprende al ritorno. |
 
-## Vincoli
+- Descrizione per screen reader in un paragrafo nascosto dentro l'header; i singoli SVG sono `aria-hidden`.
+- Il titolo `h1` della pagina sta fuori dall'header, nel testo sotto.
+- Pausa e gatto sono `button` con etichetta; il focus è visibile.
 
-- LCP: l'immagine statica degli occhi (AVIF, < 80 KB) è il primo paint; il WebGL la sostituisce senza salti.
-- JS dell'header < 150 KB gzip, caricato dopo il primo paint.
-- 60 fps su un portatile medio; mettere in pausa il rendering quando l'header non è visibile (`IntersectionObserver`) o la scheda è nascosta.
-- Accessibilità: il canvas è `aria-hidden`; un `h1` visivamente nascosto contiene "Cosmin Mann — Artista".
+## Vincoli e misure
+
+- Nessuna dipendenza a runtime: HTML + CSS + un file JS.
+- Peso attuale: markup dell'header 630 KB (179 KB gzip), JS 30 KB (9 KB gzip), CSS 5 KB. Il limite di 150 KB gzip per il JS è rispettato con largo margine;
+  il markup è il costo vero e va servito compresso.
+- L'header è nell'HTML: è lui il primo paint, senza immagini da aspettare.
+- Si muovono solo trasformazioni e opacità di livelli già disegnati. In Chromium senza GPU: 60 fps a 1440 px e su telefono (390 px a 3x), qualche fotogramma a 30 fps a 1920 px.
+- Fedeltà al riferimento, in posa di riposo: errore medio assoluto 3,2 su 255 per canale (foglio escluso, perché nell'header parte bianco).
+- Provato solo in Chromium. Safari e Firefox sono da verificare su dispositivi veri.
+
+## Limiti noti
+
+- La zampa che si allunga sul foglio è un quadrilatero piatto, senza sfaccettature.
+- La mano sinistra "si gira" con un ribaltamento: per un istante è sottilissima.
+- Il foglio si pulisce con una dissolvenza sotto la mano, non c'è un vero cambio pagina.
+- Il nome in alto e la firma nel footer dell'anteprima sono composti con un font: segnaposto in attesa del vettoriale della firma.

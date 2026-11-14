@@ -1,68 +1,81 @@
 # Design system
 
-Direzione scelta: **"Grafite di notte"**. Una galleria monocroma e silenziosa per le opere, con un header immersivo e teatrale.
-Base scura (come il suo profilo e le sue giacche), carta chiara per le opere, un solo accento rosso, scintillii rari.
+Direzione scelta: **"Low poly notturno"**. Tutto il sito prende lo stile dall'illustrazione dell'header: un interno caldo e scuro,
+superfici a sfaccettature, fogli di carta chiara, una linea al neon. Le opere a grafite restano le protagoniste: il sito fa da tavolo
+su cui sono appoggiate.
+
+Sostituisce la direzione "Grafite di notte" (monocromo e rosso vinile) del 13/11/2026: vedi `DECISIONS.md`.
+
+> **Stato:** i valori qui sotto sono quelli della pagina di anteprima (`header/build/preview.py`) e aspettano la conferma del committente.
+> L'anteprima li usa già come custom properties; le scale `--fs-*` e `--s-*` entreranno nel CSS con il sito vero.
 
 ## Principi
 
-1. **Sguardo.** Gli occhi sono il centro: nell'header, nei dettagli, nell'interazione.
-2. **Precisione.** Allineamenti esatti, griglia rigorosa, spaziature generose. Come un disegno iperrealista.
-3. **Contrasto.** Notte (sfondo) contro carta (opere). Bianco e nero contro un lampo di rosso.
-4. **Scintillio dosato.** Il glint degli strass è un premio, non una decorazione costante.
-5. **Ritmo.** Le animazioni hanno tempo musicale: entrate lente, chiusure nette.
+1. **La scena detta lo stile.** Colori, tagli e luce vengono dall'illustrazione dell'header, non il contrario.
+2. **Sfaccettature, non curve.** Gli angoli di pulsanti e riquadri sono tagliati in diagonale (`--cut`), mai arrotondati.
+3. **Carta sul tavolo.** Le opere sono fogli chiari appoggiati su un fondo scuro e caldo, con un'ombra corta.
+4. **Un solo neon.** L'arancio del battito è l'unico accento dell'interfaccia; il turchese vive solo dentro l'illustrazione.
+5. **Ritmo.** Il battito cardiaco al neon dà il tempo: torna come filetto nei titoli di sezione.
 
 ## Colori
 
-Definiti come CSS custom properties in `src/styles/tokens.css`.
+Custom properties su `:root`. Il sito è solo scuro (`color-scheme: dark`).
 
 | Token | Valore | Uso |
 |---|---|---|
-| `--c-night` | `#0B0B0C` | Sfondo principale |
-| `--c-graphite-900` | `#17171A` | Superfici, card |
-| `--c-graphite-700` | `#2A2A2E` | Bordi, divisori |
-| `--c-graphite-500` | `#5C5C63` | Testo secondario su scuro |
-| `--c-graphite-300` | `#A3A3A8` | Testo terziario, didascalie |
-| `--c-paper` | `#F1EEE8` | Testo principale su scuro, sfondo opere |
-| `--c-paper-dim` | `#D9D5CC` | Carta in ombra |
-| `--c-vinyl` | `#E3312B` | **Unico accento.** Link attivi, CTA principale, un dettaglio per schermata |
-| `--c-glint` | `#FFFFFF` | Solo per i riflessi degli strass (con blend `screen`) |
+| `--night` | `#141112` | Sfondo principale |
+| `--surface` | `#1D1819` | Fasce e riquadri |
+| `--graphite` | `#2B2628` | Superfici in rilievo |
+| `--line` | `#3A2F31` | Bordi, divisori |
+| `--paper` | `#F3DDD0` | Testo principale su scuro, fondo dei fogli |
+| `--paper-dim` | `#CDB5A8` | Testo secondario |
+| `--muted` | `#A8958D` | Didascalie, etichette mono |
+| `--paper-ink` | `#5F504B` | Testo piccolo sopra la carta |
+| `--neon` | `#FF8A4C` | **Unico accento.** CTA principale, numeri delle opere, filetto del battito |
+| `--neon-ink` | `#1D0F07` | Testo sopra `--neon` |
+| `--teal` | `#45B6CD` | Riservato: richiama la luce turchese dell'illustrazione, non si usa nell'interfaccia senza una decisione |
 
-- Contrasto minimo AA: `--c-paper` su `--c-night` ≈ 17:1; `--c-graphite-300` su `--c-night` ≈ 8:1.
-- Niente gradienti colorati. Sono ammessi gradienti tra toni di grafite e grana (noise) leggera.
-- Modalità chiara: **non prevista**. Il sito è scuro per scelta d'identità.
+Contrasti (WCAG): `--paper` su `--night` 14,4:1 · `--paper-dim` su `--night` 9,6:1 · `--muted` su `--night` 6,6:1 ·
+`--muted` su `--surface` 6,1:1 · `--neon` su `--night` 8,0:1 · `--neon-ink` su `--neon` 8,0:1 · `--paper-ink` su `--paper` 5,9:1.
+
+- Un solo elemento pieno in `--neon` per schermata (la CTA principale). Numeri e filetti in neon sono ammessi perché sottili.
+- I colori dell'illustrazione (pelle, viola, turchese, i dorsi dei libri) non escono dall'header.
+- Niente gradienti nell'interfaccia: le sfumature stanno solo nelle sfaccettature dell'illustrazione.
 
 ## Tipografia
 
-Font self-hosted (WOFF2, subset latin + latin-ext).
-
 | Ruolo | Font | Note |
 |---|---|---|
-| Display | **Instrument Serif** (Google Fonts, OFL) | Titoli grandi, nomi delle opere. Anche corsivo. |
+| Display | **Instrument Serif** (OFL) | Titoli grandi, nomi delle opere. Il corsivo fa da seconda voce. |
 | Testo / UI | **Inter Tight** (OFL) | Paragrafi, navigazione, pulsanti |
 | Didascalie / dati | **JetBrains Mono** (OFL) | Anno, tecnica, misure, numerazione opere |
-| Logo | Firma "Cosmin Mann Art" in SVG | Mai ricomporla con un font |
+| Logo | Firma "Cosmin Mann Art" in SVG | Mai ricomporla con un font. Finché il vettoriale non c'è, l'anteprima usa Instrument Serif corsivo **come segnaposto**. |
+
+Nell'anteprima i font arrivano da Google Fonts; nel sito vero vanno self-hosted (WOFF2, subset latin + latin-ext).
 
 Scala fluida (`clamp`), rapporto ~1.25:
 
 | Token | Min → Max |
 |---|---|
-| `--fs-xs` | 12 → 13 px |
+| `--fs-xs` | 11 → 13 px |
 | `--fs-sm` | 14 → 15 px |
 | `--fs-base` | 16 → 18 px |
-| `--fs-lg` | 20 → 24 px |
-| `--fs-xl` | 28 → 40 px |
-| `--fs-2xl` | 40 → 72 px |
-| `--fs-hero` | 56 → 160 px |
+| `--fs-lg` | 20 → 28 px |
+| `--fs-xl` | 32 → 56 px |
+| `--fs-2xl` | 40 → 92 px |
+| `--fs-hero` | 44 → 120 px |
 
-- Display: interlinea 0.95, tracking -0.02em. Testo: interlinea 1.55. Mono: maiuscolo, tracking +0.08em, `--fs-xs`.
-- Lunghezza riga dei paragrafi: max 64ch.
+- Display: interlinea 0.98, tracking -0.02em. Testo: interlinea 1.55. Mono: maiuscolo, tracking +0.09em, `--fs-xs`.
+- Lunghezza riga dei paragrafi: max 46ch nelle fasce, 64ch nei testi lunghi.
 
 ## Spaziatura e griglia
 
 - Unità base 4 px. Token: `--s-1` 4, `--s-2` 8, `--s-3` 12, `--s-4` 16, `--s-6` 24, `--s-8` 32, `--s-12` 48, `--s-16` 64, `--s-24` 96, `--s-32` 128.
-- Griglia: 4 colonne mobile, 8 tablet, 12 desktop. Gutter `--s-4` → `--s-6`. Margini laterali `clamp(16px, 5vw, 80px)`.
-- Contenuto massimo 1440 px; le opere in dettaglio possono andare a tutto schermo.
-- Ritmo verticale tra sezioni: `--s-24` mobile, `--s-32` desktop.
+- Griglia a 12 colonne su desktop; le opere in home sono asimmetriche (5 + 3 + 4, poi 4 + 3 + 3 rientrate di una colonna).
+  Sotto 860 px due colonne, sotto 480 px una.
+- Margini laterali `--gutter: clamp(16px, 5vw, 80px)`, mai meno dell'area sicura del dispositivo. Contenuto massimo 1440 px.
+- L'header esce dalla griglia: va sempre da bordo a bordo.
+- `--cut: 12px` è il taglio d'angolo di pulsanti e riquadri (8 px sugli elementi piccoli).
 
 ## Motion
 
@@ -74,30 +87,28 @@ Scala fluida (`clamp`), rapporto ~1.25:
 | `--d-fast` | 160 ms | Hover, focus |
 | `--d-base` | 400 ms | Comparse di elementi |
 | `--d-slow` | 900 ms | Reveal di immagini |
-| `--d-scene` | 2400 ms | Sequenze dell'header |
 
-- Reveal delle opere allo scroll: maschera che "si disegna" dall'alto (clip-path) + leggera sfocatura che si toglie.
-- Testi: entrata per righe (split lines), sfasamento 60 ms.
+- L'animazione dell'header ha tempi suoi, descritti in `HEADER.md`. È l'unica cosa che si muove da sola nella pagina.
+- Il resto dell'interfaccia si muove solo in risposta a un gesto (hover, focus, apertura del menu), con `--d-fast`.
 - Hover sulle opere: nessuno zoom aggressivo; scala max 1.02 e comparsa della didascalia mono.
-- Cursore personalizzato su desktop: un punto che diventa una "pupilla" sopra le opere. Disattivato su touch e con reduced motion.
-- `prefers-reduced-motion: reduce` → niente parallax, niente WebGL animato, solo dissolvenze ≤ 200 ms.
-
-## Texture
-
-- Grana leggera (noise SVG/PNG 4–6% di opacità) sullo sfondo notte.
-- Le opere sono presentate su `--c-paper`, con ombra morbidissima: devono sembrare fogli veri.
+- `prefers-reduced-motion: reduce` → header fermo sul disegno finito, niente scroll morbido, solo dissolvenze ≤ 200 ms.
 
 ## Componenti base
 
-- **Nav:** fissa, trasparente sopra l'header, poi `--c-night` all'80% con blur. Logo-firma a sinistra, voci in Inter Tight maiuscolo piccolo a destra. Menu a tutto schermo su mobile.
-- **Work card:** immagine, sotto numero mono (`№ 07`), titolo in Instrument Serif, anno · tecnica in mono.
-- **Lightbox / dettaglio opera:** fondo notte, opera centrata, zoom per esplorare la grafite, frecce e swipe.
-- **CTA:** testo + freccia, sottolineatura animata; la CTA principale della pagina usa `--c-vinyl`.
-- **Footer:** firma grande, social, link playlist, copyright.
+- **Barra:** striscia `--night` sopra l'header, mai sovrapposta all'illustrazione. Nome a sinistra, voci in Inter Tight maiuscolo piccolo a destra
+  (Opere, Artista, Shop, Contatti). Sotto 640 px le voci stanno dietro un pulsante "Menu".
+- **Header:** l'illustrazione animata, da bordo a bordo (vedi `HEADER.md`).
+- **Pulsanti:** angoli tagliati. Principale pieno `--neon` con testo `--neon-ink`; secondario `--surface` con bordo `--line`.
+- **Titolo di sezione:** etichetta maiuscola, filetto `--neon` con il battito al centro, conteggio in mono a destra.
+- **Opera (card):** foglio `--paper` con ombra corta; sotto, numero mono in neon (`№ 07`), titolo in Instrument Serif, anno · tecnica · misure in mono.
+- **Dettaglio opera:** fondo `--night`, opera centrata e mai coperta, zoom per esplorare la grafite, frecce e swipe.
+- **Fascia:** blocco `--surface` a due colonne (shop e artista in home).
+- **Footer:** firma grande, Instagram, contatti.
 
 ## Cose da evitare
 
-- Colori aggiuntivi, emoji, illustrazioni stock, icone colorate.
-- Effetti "glitch" o neon: non sono nel suo linguaggio.
-- Gatti cartoon o zampine decorative. Il gatto è sempre quello disegnato da lui.
-- Carousel automatici.
+- Angoli arrotondati, ombre lunghe e diffuse, vetro sfocato.
+- Un secondo accento: niente rosso, niente turchese nell'interfaccia.
+- Zampine, emoji, icone colorate, illustrazioni stock. Il gatto illustrato vive solo nell'header.
+- Qualunque effetto sopra un'opera nella vista di dettaglio.
+- Carousel automatici e animazioni in loop fuori dall'header.
