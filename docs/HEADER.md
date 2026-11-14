@@ -1,6 +1,6 @@
 # Header animato — "L'artista e il gatto"
 
-L'header è la firma del sito. È un'illustrazione low poly animata: Cosmin, cuffie e occhiali scuri, disegna un gatto a matita
+L'header è la firma del sito. È un'illustrazione low poly animata: Cosmin, cuffie e occhiali scuri, disegna un gatto
 al tavolo di un locale; accanto a lui il gatto vero non sta fermo. Sta in cima alla home, da bordo a bordo, e sotto comincia subito la galleria.
 
 Sostituisce il concept "Lo sguardo" del 13/11/2026 (vedi `DECISIONS.md`). Come è costruito e come si rifà: [`header/README.md`](../header/README.md).
@@ -18,11 +18,12 @@ Ricalcata dall'illustrazione di riferimento fornita dal committente (2171 × 724
 
 ## Cosa succede
 
-Il ciclo dura circa 65–70 secondi e poi ricomincia con un foglio pulito.
+Un ciclo intero dura circa 70–90 secondi e poi ricomincia con un foglio pulito. Quando la pagina si apre il contorno del muso è già sul foglio,
+così c'è subito qualcosa da guardare: il primo disegno finisce dopo circa un minuto.
 
 | Chi | Cosa fa |
 |---|---|
-| **Artista** | Disegna un muso di gatto in 27 tratti: le due linee di costruzione, orecchie e contorno, occhi e pupille, naso e bocca, il tratteggio delle ombre e per ultimi i baffi. La penna segue ogni tratto. Respira, muove la testa a tempo (92 bpm, il doppio del battito del neon), ogni tanto alza lo sguardo sul modello. |
+| **Artista** | Disegna un muso di gatto a sfaccettature in 34 passaggi (vedi "Il disegno sul foglio"). La penna segue ogni segno. Respira, muove la testa a tempo (92 bpm, il doppio del battito del neon), ogni tanto alza lo sguardo sul modello. |
 | **Gatto** | Segue la penna con la testa, muove la coda, sbatte le palpebre ogni 2,5–6 s. |
 | **Ambiente** | Il neon pulsa (un battito ogni 1,3 s) e un lampo corre lungo la traccia; il vapore sale dalla tazza. |
 
@@ -37,6 +38,18 @@ Escono a giri di tre, in ordine casuale: in ogni giro ciascuno compare una volta
 
 A disegno finito l'artista e il gatto lo guardano per un paio di secondi; poi la mano sinistra dà una spinta al foglio, che scivola sul tavolo
 verso chi guarda ed esce dal quadro in basso, dove comincia la galleria. Sotto c'è un foglio pulito e il disegno ricomincia.
+
+## Il disegno sul foglio
+
+Nell'illustrazione di riferimento il foglio porta dei segni larghi, grigio-malva, spigolosi e astratti. L'header ne riprende colore e spessore
+e li usa per disegnare quello che la consegna chiede, un gatto: un muso visto di fronte, a sfaccettature come tutto il resto della scena.
+
+- **Ordine:** due linee di costruzione, orecchie e contorno, occhi con le pupille, naso e bocca, poi le campiture
+  (orecchie, fronte, guance: ogni faccia si riempie sotto la penna, con tre toni e la luce da sinistra) e per ultimi i baffi.
+- **Prospettiva:** il disegno è steso sul foglio. Un segno che attraversa il foglio è sottile, uno che si allontana da chi guarda è largo,
+  e la parte lontana del muso è più stretta di quella vicina.
+- **Verso:** il muso è dritto per chi guarda la pagina, quindi capovolto per l'artista. È una scelta di leggibilità.
+- **Senza animazione** (`prefers-reduced-motion`) il disegno è completo; senza JavaScript il foglio resta bianco.
 
 ## Interazione
 
@@ -80,11 +93,11 @@ lo porta al 56% della larghezza (218 px a 390 px), con artista e gatto per inter
 ## Vincoli e misure
 
 - Nessuna dipendenza a runtime: HTML + CSS + un file JS.
-- Peso attuale: markup dell'header 630 KB (179 KB gzip), JS 32 KB (10 KB gzip), CSS 5 KB. Il limite di 150 KB gzip per il JS è rispettato con largo margine;
+- Peso attuale: markup dell'header 630 KB (179 KB gzip), JS 38 KB (12 KB gzip), CSS 5 KB. Il limite di 150 KB gzip per il JS è rispettato con largo margine;
   il markup è il costo vero e va servito compresso.
 - L'header è nell'HTML: è lui il primo paint, senza immagini da aspettare.
 - I pezzi grandi si muovono solo con trasformazioni e opacità di livelli già disegnati; si ridisegnano solo le parti piccole
-  (tratto di matita, vapore, manica, zampa, foglio che scivola). In Chromium senza GPU: 60 fps a 1440 px e su telefono (390 px a 3x), qualche fotogramma a 30 fps a 1920 px.
+  (segni del disegno, vapore, manica, zampa, foglio che scivola). In Chromium senza GPU: 60 fps a 1440 px e su telefono (390 px a 3x), qualche fotogramma a 30 fps a 1920 px.
 - Fedeltà al riferimento, in posa di riposo: errore medio assoluto 3,2 su 255 per canale (foglio escluso, perché nell'header parte bianco).
 - Provato solo in Chromium. Safari e Firefox sono da verificare su dispositivi veri.
 

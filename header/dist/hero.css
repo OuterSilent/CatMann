@@ -27,11 +27,16 @@
 .cm-stage .pc path{fill-rule:evenodd;clip-rule:evenodd}
 .cm-far{filter:blur(calc(.9 * var(--u)))}
 .cm-cam{filter:blur(var(--u))}
-/* pencil on paper */
-.cm-stage .ink{fill:none;stroke:#3a3134;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
-.cm-stage .ink-light{stroke:#9a8989;stroke-width:1.4;opacity:.7}
-.cm-stage .ink-dark{stroke:#262023;stroke-width:2.8}
-.cm-stage .ink-hatch{stroke:#665759;stroke-width:1.5;opacity:.85}
+/* the drawing on the sheet: strokes, the masks that uncover the facets, the facets (see drawing.py) */
+.cm-stage .ink{fill:none;stroke:#7f6261;stroke-width:6.4;stroke-linecap:round;stroke-linejoin:round;opacity:.94}
+.cm-stage .ink-light{stroke:#b59c95;stroke-width:2.6;opacity:.6}
+.cm-stage .ink-dark{stroke:#4d393b;stroke-width:6.8;opacity:1}
+.cm-stage .ink-fine{stroke:#705657;stroke-width:3.4;opacity:.92}
+.cm-stage .ink-mask{fill:none;stroke:#fff;stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.cm-stage .ink-t1{fill:#8f716e;opacity:.3}
+.cm-stage .ink-t2{fill:#8f716e;opacity:.54}
+.cm-stage .ink-t3{fill:#86696a;opacity:.78}
+.cm-stage .ink-fill{fill:#4d393b}
 /* cat details */
 .cm-stage .lid{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(var(--eye,0))}
 .cm-stage .lidline{fill:none;stroke:#2b1c17;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:calc((var(--eye,0) - .72)*3.6)}

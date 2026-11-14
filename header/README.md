@@ -12,7 +12,7 @@ Qui c'è come è costruito.
 | Cartella | Contenuto |
 |---|---|
 | `dist/` | Quello che usa il sito: `hero.html` (il blocco dell'header), `hero.css`, `hero.js`. `preview.html` è la pagina di prova completa e si apre con un doppio clic. |
-| `build/` | Monta l'header a partire dai vettori: `build.py` (assemblaggio e punti di snodo), `drawing.py` (il disegno a matita che compare sul foglio), `hero.css`, `runtime.js` (l'animazione), `preview.py` (la pagina di prova). |
+| `build/` | Monta l'header a partire dai vettori: `build.py` (assemblaggio e punti di snodo), `drawing.py` (il disegno che compare sul foglio), `hero.css`, `runtime.js` (l'animazione), `preview.py` (la pagina di prova). |
 | `data/` | L'illustrazione ricalcata: un file `vec_<pezzo>.json` per ognuno dei 16 pezzi, più `lights.json` con le lampade dello sfondo. La genera `pipe/`. |
 | `pipe/` | Dal riferimento ai vettori: maschere dei pezzi, livelli, ricalco. Serve solo per rifare `data/`. |
 | `tools/` | Controlli con Playwright: pose, formati, movimento ridotto, prestazioni, pagina di prova. |
@@ -57,6 +57,10 @@ python3 preview.py    # dist/preview.html
   Un "regista" fa avanzare il disegno tratto per tratto e, tra un tratto e l'altro, lancia i comportamenti del gatto.
 - Braccio destro, zampa e manica del braccio sinistro sono calcolati: l'avambraccio segue la penna, la zampa si allunga dal petto fino a dove arriva,
   la manica segue la mano che accarezza o che sposta la zampa.
+- Il disegno sul foglio è una lista di segni in `drawing.py`: linee (spezzate) e facce (poligoni a tinta piatta). È pensato su un piano,
+  proiettato sul foglio e scritto in uno spazio "stirato" in profondità che il gruppo `#cmInk` schiaccia di nuovo: così il pennino,
+  tondo sulla carta, lascia un segno sottile quando attraversa il foglio e largo quando si allontana. Una linea compare un po' alla volta
+  (`stroke-dashoffset`); una faccia compare dietro una maschera, che è lo zigzag della penna mentre la riempie, e a faccia finita la maschera si toglie.
 - I pezzi si sovrappongono nell'ordine in cui sono scritti. Dalla testa del gatto in poi hanno un livello (`z2`–`z4` in `hero.css`):
   così la mano sinistra passa sopra la testa quando accarezza e sotto (`cm-under`) quando va a prendere la zampa.
 
@@ -84,7 +88,7 @@ Due ricalcatori, scelti pezzo per pezzo in `trace.py`:
 - **vtracer** (poligoni impilati) per i pezzi a bordi netti: testa, mani, gatto, oggetti. Dopo il ricalco i contorni vengono semplificati,
   rifilati lungo la sagoma (`unpeek`, per non far spuntare un filo del colore sbagliato) e ricolorati con il colore vero dell'immagine (`recolour`).
 
-Il foglio, il disegno a matita, il neon, il vapore, le palpebre e i baffi del gatto non vengono dal ricalco: sono disegnati in `build.py` e `drawing.py`.
+Il foglio, il disegno, il neon, il vapore, le palpebre e i baffi del gatto non vengono dal ricalco: sono disegnati in `build.py` e `drawing.py`.
 
 ## Controlli
 
@@ -93,7 +97,7 @@ Usano Playwright (`npm i playwright`, poi `npx playwright install chromium`). Gl
 ```sh
 cd header/tools
 # posa di riposo a grandezza naturale, poi confronto con il riferimento
-node pose.cjs ../view/rest.png "__cm.freeze(); __cm.ink(27); __cm.S.tailAmp=0; __cm.S.track=0; __cm.set({}, 0)" 2171 724
+node pose.cjs ../view/rest.png "__cm.freeze(); __cm.ink(); __cm.S.tailAmp=0; __cm.S.track=0; __cm.set({}, 0)" 2171 724
 (cd ../pipe && python3 cmpref.py ../view/rest.png ../view/rest_err.png)
 
 node responsive.cjs ../view/phone.png 390 844 3    # l'header da solo a una certa finestra: larghezza, altezza, densità

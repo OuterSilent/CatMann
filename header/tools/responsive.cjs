@@ -2,7 +2,7 @@
 const { chromium } = require('playwright');
 const path = require('path');
 (async () => {
-  const [,, out, w, h, dsf = '1', js = "__cm.freeze(); __cm.ink(27); __cm.S.tailAmp=0; __cm.S.track=0; __cm.set({}, 0)", page_ = '../dist/test_manual.html'] = process.argv;
+  const [,, out, w, h, dsf = '1', js = "__cm.freeze(); __cm.ink(); __cm.S.tailAmp=0; __cm.S.track=0; __cm.set({}, 0)", page_ = '../dist/test_manual.html'] = process.argv;
   const b = await chromium.launch();
   const p = await b.newPage({ viewport: { width: +w, height: +h }, deviceScaleFactor: +dsf });
   p.on('console', m => { if (m.type() === 'error') console.log('[console]', m.text()); });

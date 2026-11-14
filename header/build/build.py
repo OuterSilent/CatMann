@@ -132,14 +132,14 @@ def meet(p1, p2, p3, p4):
     return ((a * (p3[0] - p4[0]) - (p1[0] - p2[0]) * b) / d, (a * (p3[1] - p4[1]) - (p1[1] - p2[1]) * b) / d)
 # The two sides of the sheet run towards this point: a page pushed across the table towards the viewer grows away from it.
 SHEET_VANISH = meet(SHEET[0], SHEET[3], SHEET[1], SHEET[2])
-# The sheet is a pad: the page he draws on (cmPage, with the pencil lines) lies on a clean one. The thin strip above the page
+# The sheet is a pad: the page he draws on (cmPage, with the drawing) lies on a clean one. The thin strip above the page
 # is the shadow of its far edge, which only shows once the page slides off (the runtime moves the page and fades the strip in).
 PAGE_EDGE = [(SHEET[0][0], SHEET[0][1] - 2.2), (SHEET[1][0], SHEET[1][1] - 2.2), SHEET[1], SHEET[0]]
 sheet = (svg_open(660, 610, 1600, 712)
          + '<defs><linearGradient id="cmPaper" gradientUnits="userSpaceOnUse" x1="700" y1="0" x2="1570" y2="0"><stop offset="0" stop-color="#f1d6c6"/><stop offset=".5" stop-color="#f3d8cb"/><stop offset="1" stop-color="#f5cdbb"/></linearGradient>'
          + '<clipPath id="cmSheetClip"><polygon points="%s"/></clipPath><filter id="cmSoft" x="-20%%" y="-40%%" width="140%%" height="180%%"><feGaussianBlur stdDeviation="1.8"/></filter></defs>' % pts(SHEET)
          + '<polygon points="%s" fill="url(#cmPaper)"/>' % pts(SHEET)
-         + '<g id="cmPage"><polygon id="cmPageEdge" fill="#5a3a31" opacity="0" points="%s"/><polygon points="%s" fill="url(#cmPaper)"/><g id="cmInk"></g></g>' % (pts(PAGE_EDGE), pts(SHEET))
+         + '<g id="cmPage"><polygon id="cmPageEdge" fill="#5a3a31" opacity="0" points="%s"/><polygon points="%s" fill="url(#cmPaper)"/><g id="cmInk" transform="matrix(1 0 0 %s 0 %s)"></g></g>' % (pts(PAGE_EDGE), pts(SHEET), '%g' % drawing.SQUASH, '%g' % round(drawing.INK_Y * (1 - drawing.SQUASH), 3))
          + '<g clip-path="url(#cmSheetClip)">'
          + '<polygon id="cmShL" filter="url(#cmSoft)" fill="#a37768" points="1118,627 1180,630 1262,636 1330,633 1356,627 1344,641 1262,645 1170,641 1124,635"/>'
          + '<g id="cmShR" filter="url(#cmSoft)"><polygon fill="#7a4a3c" points="742,652 770,642 830,646 880,641 914,636 936,651 941,661 916,666 880,661 840,669 790,663 756,658"/></g>'
@@ -263,7 +263,10 @@ RIG = {
     'sheetVanish': {'x': round(SHEET_VANISH[0], 1), 'y': round(SHEET_VANISH[1], 1)},
     'pet': {'x': 1445, 'y': 452, 'rot': -6},
     'disturb': {'pawX': -46, 'pawY': 38, 'drag': 14, 'hx': 1335, 'hy': 612, 'hrot': 2},
-    'strokes': drawing.build(cx=945.0, cy=665.0, half_w=96.0, v_span=0.33),
+    'strokes': drawing.build(),
+    # the strokes are laid out stretched by 1/k around y and the group squashes them back; the first `start` of them are
+    # already on the sheet when the page opens
+    'ink': {'y': drawing.INK_Y, 'k': drawing.SQUASH, 'start': drawing.HEAD_START},
 }
 
 GID_BASE = GID[0]       # ids handed out above belong to the fixed snippets; the pieces start from here on every call
@@ -297,7 +300,7 @@ def stage_html():
     h.append('</div>')
     return '\n'.join(h)
 
-HERO_ALT = ("Illustrazione animata in stile low poly: Cosmin Mann, con cuffie e occhiali scuri, disegna un gatto a matita al tavolo di un locale. "
+HERO_ALT = ("Illustrazione animata in stile low poly: Cosmin Mann, con cuffie e occhiali scuri, disegna un gatto su un foglio, al tavolo di un locale. "
             "Accanto a lui un gatto grigio lo osserva, ogni tanto gli chiede una carezza e ogni tanto mette una zampa sul foglio.")
 def hero_html(attrs=''):
     """The whole header: description for screen readers, the stage, and the pause button (shown by the script)."""

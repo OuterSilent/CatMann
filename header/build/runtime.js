@@ -113,9 +113,9 @@
 
     var tip = { x: S.penX, y: S.penY };
     if (stroke) {
-      var pt = stroke.el.getPointAtLength(stroke.p * stroke.len);
+      var pt = inkAt(stroke);
       tip = ap(Msh, pt); S.penX = pt.x; S.penY = pt.y;
-      stroke.el.style.strokeDashoffset = (stroke.len * (1 - stroke.p)).toFixed(1);
+      inkShow(stroke);
     }
     var up = S.penUp;
     var tipL = { x: tip.x - 4 * up, y: tip.y - 12 * up };
@@ -211,21 +211,53 @@
   }
 
   // ---------------------------------------------------------------- the drawing
-  var strokes = [];
+  // Each stroke is a polyline in "ink space" (y stretched around INK.y; the group #cmInk squashes it back): the nib is round
+  // on the paper, so from where we stand a stroke across the sheet is thin and one that runs away from us is broad.
+  // A facet is a flat polygon uncovered through a mask: the zigzag the nib makes to shade it.
+  var strokes = [], INK = RIG.ink;
   (function () {
-    var g = el.ink, ns = 'http://www.w3.org/2000/svg';
-    RIG.strokes.forEach(function (s) {
-      var p = document.createElementNS(ns, 'path');
-      p.setAttribute('d', 'M' + s.pts.map(function (q) { return q[0] + ',' + q[1]; }).join('L'));
-      p.setAttribute('class', 'ink ink-' + s.kind);
-      g.appendChild(p);
-      var len = p.getTotalLength();
-      p.style.strokeDasharray = len.toFixed(1) + ' ' + (len + 4).toFixed(1);
-      p.style.strokeDashoffset = len.toFixed(1);
-      strokes.push({ el: p, len: len, kind: s.kind, a: s.pts[0], p: 0 });
+    var g = el.ink, ns = 'http://www.w3.org/2000/svg', OVER = 5;
+    function mk(tag, cls) { var e = document.createElementNS(ns, tag); if (cls) e.setAttribute('class', cls); return e; }
+    function ink(q) { return [q[0], INK.y + (q[1] - INK.y) / INK.k]; }
+    function d(pts) { return 'M' + pts.map(function (q) { return q[0].toFixed(1) + ',' + q[1].toFixed(1); }).join('L'); }
+    function length(pts, cum) { var l = 0; for (var k = 1; k < pts.length; k++) { l += Math.hypot(pts[k][0] - pts[k - 1][0], pts[k][1] - pts[k - 1][1]); if (cum) cum.push(l); } return l; }
+    RIG.strokes.forEach(function (s, i) {
+      var q = s.pts.map(ink), p = mk('path', s.poly ? 'ink-mask' : 'ink ink-' + s.kind), face = null, cum = [0], len = length(q, cum), shown = len;
+      if (s.poly) {
+        // the mask is the same zigzag with every pass run a little past the edges of the facet, so that no corner stays covered
+        var m = mk('mask'), over = [];
+        for (var k = 0; k + 1 < q.length; k += 2) {
+          var a = q[k], b = q[k + 1], dx = b[0] - a[0], dy = b[1] - a[1], l = Math.hypot(dx, dy) || 1;
+          over.push([a[0] - dx / l * OVER, a[1] - dy / l * OVER], [b[0] + dx / l * OVER, b[1] + dy / l * OVER]);
+        }
+        p.setAttribute('d', d(over)); shown = length(over);
+        m.id = 'cmInkM' + i; m.appendChild(p); g.appendChild(m);
+        face = mk('path', 'ink-' + s.kind); face.setAttribute('d', d(s.poly.map(ink)) + 'z'); face.__m = 'url(#' + m.id + ')'; g.appendChild(face);
+      } else { p.setAttribute('d', d(q)); g.appendChild(p); }
+      p.style.strokeDasharray = shown.toFixed(1) + ' ' + (shown + 12).toFixed(1);
+      strokes.push({ el: p, face: face, len: len, shownLen: shown, cum: cum, pts: s.pts, kind: s.kind, a: s.pts[0], p: 0, shown: -1 });
     });
   })();
-  var SPEED = { light: 300, line: 150, dark: 95, hatch: 260 };
+  var SPEED = { light: 380, line: 180, dark: 125, fine: 240, face: 300 };     // ink-space units per second
+
+  /* Puts as much of the stroke on the paper as its p says (0..1). A finished facet drops its mask. */
+  function inkShow(s) {
+    if (s.shown === s.p) return;
+    s.shown = s.p;
+    s.el.style.strokeDashoffset = (s.shownLen * (1 - s.p)).toFixed(1);
+    var masked = s.p < 1;
+    if (s.face && masked !== s.masked) { s.masked = masked; if (masked) s.face.setAttribute('mask', s.face.__m); else s.face.removeAttribute('mask'); }
+  }
+  /* Where the nib is along the stroke, in stage units. */
+  function inkAt(s) {
+    var d = s.p * s.len, c = s.cum, i = 1;
+    while (i < c.length - 1 && c[i] < d) i++;
+    var f = c[i] > c[i - 1] ? (d - c[i - 1]) / (c[i] - c[i - 1]) : 0, a = s.pts[i - 1], b = s.pts[i];
+    return { x: a[0] + (b[0] - a[0]) * f, y: a[1] + (b[1] - a[1]) * f };
+  }
+  /* The first n strokes are on the paper (all of them without n), the rest are not. */
+  function inkReset(n) { strokes.forEach(function (s, i) { s.p = i >= n ? 0 : 1; inkShow(s); }); }
+  inkReset(INK.start);       // the page opens on a sheet that already has the outline: something to look at from the first second
 
   async function penTo(x, y, lift) {
     var d = Math.hypot(x - S.penX, y - S.penY);
@@ -237,10 +269,10 @@
   async function drawStroke(s) {
     await penTo(s.a[0], s.a[1]);
     stroke = s; s.p = 0;
-    await tw(s, { p: 1 }, clamp(s.len / SPEED[s.kind], 0.18, 2.6), s.kind === 'hatch' ? E.lin : E.sine);
+    await tw(s, { p: 1 }, clamp(s.len / (s.face ? SPEED.face : SPEED[s.kind]), 0.18, 2.6), s.face ? E.lin : E.sine);
+    inkShow(s);
     stroke = null;
   }
-  function inkReset(done) { strokes.forEach(function (s) { s.p = done ? 1 : 0; s.el.style.strokeDashoffset = done ? '0' : s.len.toFixed(1); }); }
 
   // ---------------------------------------------------------------- behaviours
   var busy = false, forced = null;
@@ -385,9 +417,9 @@
 
   async function director() {
     await wait(0.8);
-    var next = now + rand(4, 6), sinceGlance = 0;
+    var next = now + rand(4, 6), sinceGlance = 0, from = INK.start;
     while (alive) {
-      for (var i = 0; i < strokes.length && alive; i++) {
+      for (var i = from; i < strokes.length && alive; i++) {
         await drawStroke(strokes[i]);
         if (!busy && (forced || now >= next)) {
           var a = nextAct();
@@ -416,7 +448,7 @@
       tw(S, { cHeadRot: 4, cHeadX: 2, cHeadY: -2 }, 0.5, E.io);                            // the cat watches it go
       tw(S, { lhx: J.lwrist.x, lhy: J.lwrist.y - 8, lhRot: -2 }, 0.45, E.out);
       await tw(S, { page: 1.96 }, 0.43, E.lin);                                            // it carries on at that speed and leaves the picture
-      inkReset(false); S.page = 1;
+      inkReset(0); from = 0; S.page = 1;
       await tw(S, { lhy: J.lwrist.y, lhRot: 0 }, 0.2, E.in);
       tw(S, { lhShadow: 1 }, 0.25);
       S.track = 1;
@@ -455,7 +487,7 @@
 
   var reduce = window.matchMedia('(prefers-reduced-motion: reduce)');
   function boot() {
-    if (reduce.matches) { inkReset(true); pose(); hero.classList.add('cm-static'); return; }
+    if (reduce.matches) { inkReset(); pose(); hero.classList.add('cm-static'); return; }
     hero.classList.add('cm-live');
     director(); blinkLoop();
     if ('IntersectionObserver' in window) {
@@ -484,7 +516,11 @@
     par: par,
     freeze: function () { alive = false; stop(); tweens.length = 0; par.locked = true; par.tx = par.ty = par.x = par.y = par.sy = 0; },
     set: function (o, t) { for (var k in o) S[k] = o[k]; if (t != null) now = t; pose(); pose(); pose(); },
-    ink: function (n) { strokes.forEach(function (s, i) { var d = i < n; s.el.style.strokeDashoffset = d ? '0' : s.len.toFixed(1); }); },
+    // the first n strokes are on the paper (all of them without n); with `part`, stroke n is that far along and the nib is on it
+    ink: function (n, part) {
+      inkReset(n);
+      if (part != null && strokes[n]) { var s = strokes[n]; s.p = part; inkShow(s); var q = inkAt(s); S.penX = q.x; S.penY = q.y; }
+    },
     run: async function (secs, fps) {
       fps = fps || 60;
       var ch = new MessageChannel();
