@@ -14,8 +14,14 @@
 @media (max-width:480px){.cm-hero:not([data-cm-frame="wide"]) .cm-stage{--cx:1250}}
 .cm-stage{--u:max(calc(100cqw / 2171),calc(100cqh / 724));--cx:1290;position:absolute;bottom:0;
   left:clamp(calc(100cqw - 2171 * var(--u)),calc(50cqw - var(--cx) * var(--u)),0px);width:calc(2171 * var(--u));height:calc(724 * var(--u));
-  contain:layout style;-webkit-user-select:none;user-select:none}
+  z-index:0;contain:layout style;-webkit-user-select:none;user-select:none}
 .cm-stage .n{position:absolute;left:0;top:0;width:0;height:0;transform-origin:0 0;pointer-events:none}
+/* Stacking. The pieces paint in document order; from the cat's head on they sit on levels, so that the left hand and its
+   sleeve (z3) can pass over the head when he strokes the cat, or under it (.cm-under) when he reaches for the paw. */
+.cm-stage .z2{z-index:2}
+.cm-stage .z3{z-index:3}
+.cm-stage .z4{z-index:4}
+.cm-stage .z3.cm-under{z-index:1}
 .cm-stage .mv{will-change:transform}
 .cm-stage .pc{position:absolute;display:block;overflow:visible;left:calc(var(--x) * var(--u));top:calc(var(--y) * var(--u));width:calc(var(--w) * var(--u));height:calc(var(--h) * var(--u))}
 .cm-stage .pc path{fill-rule:evenodd;clip-rule:evenodd}
@@ -45,7 +51,7 @@
 @keyframes cm-beat{0%,100%{opacity:0}7%{opacity:.7}16%{opacity:.12}24%{opacity:.5}44%{opacity:0}}
 @keyframes cm-run-o{0%{opacity:0}6%{opacity:.85}60%{opacity:.85}70%,100%{opacity:0}}
 @keyframes cm-run{0%{stroke-dashoffset:100}70%,100%{stroke-dashoffset:7}}
-.cm-cat-hit{position:absolute;left:calc(1390 * var(--u));top:calc(330 * var(--u));width:calc(560 * var(--u));height:calc(310 * var(--u));border:0;padding:0;background:transparent;cursor:pointer;border-radius:40% 40% 20% 20%;-webkit-tap-highlight-color:transparent}
+.cm-cat-hit{position:absolute;z-index:5;left:calc(1390 * var(--u));top:calc(330 * var(--u));width:calc(560 * var(--u));height:calc(310 * var(--u));border:0;padding:0;background:transparent;cursor:pointer;border-radius:40% 40% 20% 20%;-webkit-tap-highlight-color:transparent}
 .cm-cat-hit:focus-visible{outline:3px solid #ff8847;outline-offset:4px}
 @media (prefers-reduced-motion:reduce){.cm-live .neon-pulse,.cm-live .neon-run,.cm-live .neon-run polyline{animation:none}}
 .cm-paused .neon-pulse,.cm-paused .neon-run,.cm-paused .neon-run polyline{animation-play-state:paused}

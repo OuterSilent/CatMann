@@ -228,7 +228,11 @@ def lights_svg():
             out.append('<path fill="%s" d="%s"/>' % (fill, path_d([e['pts']])))
     return ('<defs>' + ''.join(defs) + '</defs>' if defs else '') + ''.join(out)
 
-leg = svg_open(1430, 560, 1690, 706) + '<g><polygon id="cmLeg" fill="#c9a092" points="0,0"/><polygon id="cmLegB" fill="#a17a6e" points="0,0"/></g></svg>'
+# The foreleg that reaches for the sheet: the shaded side and the lit front of the leg, in the colours of the stretch of leg
+# the picture shows above the paw, and the shadow the paw throws where it lands. The runtime sets the points.
+leg = (svg_open(1430, 560, 1690, 706) + '<defs><filter id="cmPawSoft" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="1.6"/></filter></defs>'
+       '<g><polygon id="cmPawSh" filter="url(#cmPawSoft)" fill="#3a211c" opacity=".42" points="0,0"/><polygon id="cmLegS" fill="#593e39" points="0,0"/>'
+       '<polygon id="cmLeg" fill="#8d6659" points="0,0"/><polygon id="cmLegL" fill="#9b7467" points="0,0"/></g></svg>')
 sleeve = svg_open(1230, 300, 1730, 690) + '<polygon id="cmSlv" fill="#1b1818" points="0,0"/><polygon id="cmSlvF" fill="#262120" points="0,0"/><polygon id="cmSlvR" fill="#31434b" points="0,0"/><polygon id="cmSlvC" fill="#2a2423" points="0,0"/></svg>'
 
 RIG = {
@@ -236,11 +240,15 @@ RIG = {
     'joints': {
         'tip': {'x': 936, 'y': 656}, 'wrist': {'x': 716, 'y': 600}, 'elbow': {'x': 505, 'y': 606}, 'shoulder': {'x': 772, 'y': 372},
         'hip': {'x': 1060, 'y': 660}, 'neck': {'x': 1062, 'y': 432},
-        'lwrist': {'x': 1350, 'y': 590}, 'lelbow': {'x': 1392, 'y': 548}, 'lraise': {'x': 1318, 'y': 448}, 'sheetPivot': {'x': 1240, 'y': 632},
+        'lwrist': {'x': 1350, 'y': 590}, 'lelbow': {'x': 1392, 'y': 548}, 'lraise': {'x': 1318, 'y': 448}, 'ltuck': {'x': 1222, 'y': 583},
+        'sheetPivot': {'x': 1240, 'y': 632},
         'catGround': {'x': 1700, 'y': 640}, 'tail': {'x': 1882, 'y': 585}, 'catNeck': {'x': 1548, 'y': 505}, 'catHead': {'x': 1480, 'y': 520},
-        'paw': {'x': 1582, 'y': 620}, 'legA': {'x': 1556, 'y': 596}, 'legB': {'x': 1612, 'y': 598},
-        'pawA': {'x': 1553, 'y': 608}, 'pawB': {'x': 1611, 'y': 610}, 'pawM': {'x': 1590, 'y': 625},
+        'paw': {'x': 1582, 'y': 620},
+        # the leg above the paw: top of its front and side facets on the chest (legA-B-C), and where they meet the paw (pawA-B-C)
+        'legA': {'x': 1572, 'y': 584}, 'legB': {'x': 1595, 'y': 579}, 'legC': {'x': 1625, 'y': 592},
+        'pawA': {'x': 1571, 'y': 602}, 'pawB': {'x': 1595, 'y': 601}, 'pawC': {'x': 1615, 'y': 617},
     },
+    'pawShadow': [[1550, 631], [1617, 632], [1629, 640], [1612, 647], [1560, 647], [1544, 640]],
     'pet': {'x': 1445, 'y': 452, 'rot': -6},
     'disturb': {'pawX': -46, 'pawY': 38, 'drag': 14, 'hx': 1335, 'hy': 612, 'hrot': 2},
     'strokes': drawing.build(cx=945.0, cy=665.0, half_w=96.0, v_span=0.33),
@@ -264,14 +272,15 @@ def stage_html():
     h.append(node('cat_body', piece_svg('cat_body'), 'mv'))
     h.append(node('cat_leg', leg))
     h.append(node('cat_paw_l', piece_svg('cat_paw_l'), 'mv'))
-    h.append(node('cat_head', piece_svg('cat_head', EYES + LIDS + whiskers), 'mv'))
-    h.append(node('props_front', piece_svg('props_front')))
-    h.append(node('r_forearm', piece_svg('r_forearm'), 'mv'))
-    h.append(node('r_hand', piece_svg('r_hand'), 'mv'))
-    h.append(node('l_sleeve', sleeve))
-    h.append(node('l_hand', piece_svg('l_hand'), 'mv'))
-    h.append(node('plant', piece_svg('plant', PLANT_FIX, under=PLANT_EDGE), 'mv'))
-    h.append(node('camera', piece_svg('camera'), 'mv cm-cam'))
+    # from the cat's head on, the pieces sit on stacking levels (z2..z4, see hero.css): the left hand and its sleeve (z3) can drop under the head
+    h.append(node('cat_head', piece_svg('cat_head', EYES + LIDS + whiskers), 'mv z2'))
+    h.append(node('props_front', piece_svg('props_front'), 'z2'))
+    h.append(node('r_forearm', piece_svg('r_forearm'), 'mv z2'))
+    h.append(node('r_hand', piece_svg('r_hand'), 'mv z2'))
+    h.append(node('l_sleeve', sleeve, 'z3'))
+    h.append(node('l_hand', piece_svg('l_hand'), 'mv z3'))
+    h.append(node('plant', piece_svg('plant', PLANT_FIX, under=PLANT_EDGE), 'mv z4'))
+    h.append(node('camera', piece_svg('camera'), 'mv cm-cam z4'))
     h.append('<button type="button" class="cm-cat-hit" data-cm-cat aria-label="Il gatto: toccalo per farlo interagire con l\'artista"></button>')
     h.append('</div>')
     return '\n'.join(h)

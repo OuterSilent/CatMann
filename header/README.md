@@ -55,7 +55,10 @@ python3 preview.py    # dist/preview.html
   i livelli vengono disegnati alla dimensione a cui si vedono, senza ingrandimenti a posteriori.
 - `runtime.js` tiene uno stato (`S`: penna, testa, mano sinistra, gatto, foglio), lo anima con interpolazioni e a ogni fotogramma lo traduce in matrici.
   Un "regista" fa avanzare il disegno tratto per tratto e, tra un tratto e l'altro, lancia i comportamenti del gatto.
-- Braccio destro, zampa e manica del braccio sinistro sono calcolati: l'avambraccio segue la penna, la manica si allunga dietro la mano che accarezza.
+- Braccio destro, zampa e manica del braccio sinistro sono calcolati: l'avambraccio segue la penna, la zampa si allunga dal petto fino a dove arriva,
+  la manica segue la mano che accarezza o che sposta la zampa.
+- I pezzi si sovrappongono nell'ordine in cui sono scritti. Dalla testa del gatto in poi hanno un livello (`z2`–`z4` in `hero.css`):
+  così la mano sinistra passa sopra la testa quando accarezza e sotto (`cm-under`) quando va a prendere la zampa.
 
 ## Rifare il ricalco
 
@@ -96,6 +99,7 @@ node pose.cjs ../view/rest.png "__cm.freeze(); __cm.ink(27); __cm.S.tailAmp=0; _
 node responsive.cjs ../view/phone.png 390 844 3    # l'header da solo a una certa finestra: larghezza, altezza, densità
 node reduced-motion.cjs ../view/reduced.png        # con movimento ridotto è fermo? la pausa ferma davvero tutto?
 node perf.cjs 1440 900 1 6                         # cadenza dei fotogrammi per 6 secondi
+node perf.cjs 1440 900 1 13 disturb                # la stessa misura mentre il gatto fa un comportamento (observe, attention, disturb)
 node timeline.cjs 120                              # cosa succede e quando, in 120 secondi simulati
 node page-check.cjs                                # pagina di prova: pulsanti dei comportamenti, pausa, tocco sul gatto, menu su telefono
 node page-shot.cjs ../view/page.png 1440 900 1     # screenshot dell'intera pagina di prova

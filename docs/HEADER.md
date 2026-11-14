@@ -33,7 +33,7 @@ Escono a giri di tre, in ordine casuale: in ogni giro ciascuno compare una volta
 |---|---|---|
 | **Osserva** (`observe`) | Si sporge verso il foglio, inclina la testa da una parte e dall'altra, torna a posto. L'artista continua a disegnare. | 5–6 s |
 | **Chiede attenzioni** (`attention`) | Si strofina due volte contro l'avambraccio e alza lo sguardo. L'artista solleva la penna, si gira, lo accarezza tre volte dalla testa verso la schiena; il gatto chiude gli occhi. Poi tutti e due tornano al lavoro. | ~9 s |
-| **Disturba** (`disturb`) | Punta il foglio, ci mette una zampa sull'angolo e lo tira due volte. L'artista si ferma, gli sposta la zampa con la mano sinistra e raddrizza il foglio. Il gatto guarda altrove, offeso, con la coda che frusta. | ~7 s |
+| **Disturba** (`disturb`) | Punta il foglio, allunga una zampa sull'angolo e lo tira due volte. L'artista si ferma, fa scivolare la mano sinistra sotto il muso del gatto, gli riaccompagna la zampa al suo posto e raddrizza il foglio. Il gatto guarda altrove, offeso, con la coda che frusta. | ~7 s |
 
 A disegno finito l'artista e il gatto lo guardano per un paio di secondi, la mano sinistra liscia il foglio e la pagina torna bianca.
 
@@ -88,7 +88,7 @@ lo porta al 56% della larghezza (218 px a 390 px), con artista e gatto per inter
 
 ## Limiti noti
 
-- La zampa che si allunga sul foglio è un quadrilatero piatto, senza sfaccettature.
-- La mano sinistra "si gira" con un ribaltamento: per un istante è sottilissima.
+- La mano sinistra "si gira" con un ribaltamento: si stringe fino a un terzo e in un fotogramma passa dall'altra parte del polso.
+- La zampa che si allunga è disegnata a mano (due facce, con i colori del tratto di zampa che si vede nell'illustrazione): è più semplice del resto del gatto.
 - Il foglio si pulisce con una dissolvenza sotto la mano, non c'è un vero cambio pagina.
 - Il nome in alto e la firma nel footer dell'anteprima sono composti con un font: segnaposto in attesa del vettoriale della firma.

@@ -56,7 +56,7 @@
     // artist
     penX: J.tip.x, penY: J.tip.y, penUp: 0, handRot: 0,
     headRot: 0, headX: 0, headY: 0, nod: 1, lean: 0,
-    lhx: J.lwrist.x, lhy: J.lwrist.y, lhRot: 0, lhFlip: 1, lhShadow: 1,
+    lhx: J.lwrist.x, lhy: J.lwrist.y, lhRot: 0, lhFlip: 1, lhShadow: 1, lhTuck: 0,
     // cat
     catX: 0, catY: 0, cHeadRot: 0, cHeadX: 0, cHeadY: 0, cHeadTilt: 0, track: 1,
     tail: 0, tailAmp: 1, tailSpeed: 1, pawX: 0, pawY: 0, pawRot: 0, eye: 0, blink: 0,
@@ -86,7 +86,7 @@
   var par = { x: 0, y: 0, tx: 0, ty: 0, sy: 0 };
   var look = 0, lastEye = -1, tailPhase = 0, lastT = 0;
   var el = {
-    shR: Q('#cmShR'), shL: Q('#cmShL'), leg: Q('#cmLeg'), legB: Q('#cmLegB'), slv: Q('#cmSlv'), slvF: Q('#cmSlvF'), slvC: Q('#cmSlvC'), slvR: Q('#cmSlvR'),
+    shR: Q('#cmShR'), shL: Q('#cmShL'), leg: Q('#cmLeg'), legL: Q('#cmLegL'), legS: Q('#cmLegS'), pawSh: Q('#cmPawSh'), slv: Q('#cmSlv'), slvF: Q('#cmSlvF'), slvC: Q('#cmSlvC'), slvR: Q('#cmSlvR'),
     steam: [].slice.call(stage.querySelectorAll('#cmSteam polygon')), ink: Q('#cmInk')
   };
   var steamBase = el.steam.map(function (p) { return p.getAttribute('points').trim().split(/\s+/).map(function (s) { var a = s.split(','); return [+a[0], +a[1]]; }); });
@@ -132,12 +132,17 @@
     el.shR.style.opacity = (0.62 - 0.3 * up).toFixed(2);
 
     // ---- left hand (rests on the sheet; lifts, turns over and reaches for the cat)
-    var Ml = chain(T(S.lhx - J.lwrist.x, S.lhy - J.lwrist.y), R(S.lhRot, J.lwrist), SC(S.lhFlip, 1, J.lwrist));
+    // turning the hand over: it narrows to about a third and swaps sides at the wrist in one frame (it never shrinks to nothing)
+    var flip = (S.lhFlip < 0 ? -1 : 1) * Math.max(0.32, Math.pow(Math.abs(S.lhFlip), 0.45));
+    var Ml = chain(T(S.lhx - J.lwrist.x, S.lhy - J.lwrist.y), R(S.lhRot, J.lwrist), SC(flip, 1, J.lwrist));
     setM('l_hand', Ml);
     var lw = { x: S.lhx, y: S.lhy }, away = Math.hypot(lw.x - J.lwrist.x, lw.y - J.lwrist.y);
     var raise = clamp((J.lwrist.y - lw.y) / 110, 0, 1);            // the higher the hand, the more the elbow comes up to shoulder height
     var le = { x: lerp(J.lelbow.x + (lw.x - J.lwrist.x) * 0.22, J.lraise.x, raise), y: lerp(J.lelbow.y + (lw.y - J.lwrist.y) * 0.3, J.lraise.y, raise) };
-    var vis = clamp((away - 10) / 26, 0, 1);
+    if (S.lhTuck > 0) {                                           // reaching along the sheet: the elbow comes in front of him, the forearm lies on the table edge
+      le.x = lerp(le.x, J.ltuck.x + (lw.x - RIG.disturb.hx) * 0.45, S.lhTuck); le.y = lerp(le.y, J.ltuck.y + (lw.y - RIG.disturb.hy) * 0.45, S.lhTuck);
+    }
+    var vis = Math.max(clamp((away - 10) / 26, 0, 1), S.lhTuck);
     N.l_sleeve.style.opacity = vis.toFixed(2);
     if (vis > 0) { sleeve(le, lw); setAttr(el.slvR, 'opacity', raise.toFixed(2)); }   // the rim light only shows once the arm is up against the bright wall
     el.shL.style.opacity = (0.5 * S.lhShadow * clamp(1 - away / 18, 0, 1)).toFixed(2);
@@ -185,12 +190,18 @@
     el.slvR.setAttribute('points', [P(-34, we), P(L * 0.5, we * 0.5 + ww * 0.5 + 3), P(L - c, ww), P(L - c, ww - 3.2), P(L * 0.5, we * 0.5 + ww * 0.5 - 0.5), P(-34, we - 3.5)].join(' '));
     el.slvC.setAttribute('points', [P(L - c, ww + 2.5), P(L + 5, ww - 2), P(L + 7, -ww + 4), P(L - c, -ww - 2.5)].join(' '));
   }
-  /* Foreleg of the cat when the paw reaches out: joins the chest to the paw. */
+  /* Foreleg of the cat when the paw reaches out: the stretch of leg the picture shows above the paw, drawn out from the
+     chest to wherever the paw is (lit front, shaded side), and the shadow under the paw. */
   function leg(Mc, Mp) {
-    var a = ap(Mc, J.legA), b = ap(Mc, J.legB), c = ap(Mp, J.pawB), d = ap(Mp, J.pawA), m = ap(Mp, J.pawM);
+    var a = ap(Mc, J.legA), b = ap(Mc, J.legB), c = ap(Mc, J.legC), a2 = ap(Mp, J.pawA), b2 = ap(Mp, J.pawB), c2 = ap(Mp, J.pawC);
     function f(p) { return p.x.toFixed(1) + ',' + p.y.toFixed(1); }
-    el.leg.setAttribute('points', [f(a), f(b), f(c), f(d)].join(' '));
-    el.legB.setAttribute('points', [f(b), f(c), f(m)].join(' '));
+    el.legS.setAttribute('points', [f(b), f(c), f(c2), f(b2)].join(' '));
+    el.leg.setAttribute('points', [f(a), f(b), f(b2), f(a2)].join(' '));
+    el.legL.setAttribute('points', [f(a), f(b2), f(a2)].join(' '));
+    // the shadow lies on the table: it does not rise with a lifted paw, and it shows as the paw comes forward onto the sheet
+    var Ms = chain(Mc, T(S.pawX, Math.max(0, S.pawY)));
+    el.pawSh.setAttribute('points', RIG.pawShadow.map(function (q) { return f(ap(Ms, { x: q[0], y: q[1] })); }).join(' '));
+    setAttr(el.pawSh, 'opacity', (0.42 * clamp(S.pawY / 14, 0, 1)).toFixed(2));
   }
 
   // ---------------------------------------------------------------- the drawing
@@ -256,15 +267,16 @@
     await wait(0.35);
     tw(S, { nod: 1 }, 1.2);
   }
-  /* Left hand: lift from the sheet, turn over and travel to (x, y). */
-  async function handOut(x, y, rot) {
+  /* Left hand: lift from the sheet, turn over and travel to (x, y). tuck: the forearm comes round in front of him (see pose). */
+  async function handOut(x, y, rot, tuck) {
     tw(S, { lhShadow: 0 }, 0.2);
     await tw(S, { lhy: J.lwrist.y - 16, lhRot: -4 }, 0.22, E.out);
     tw(S, { lhFlip: -1 }, 0.3, E.io);
+    if (tuck) tw(S, { lhTuck: 1 }, 0.3, E.io);
     await tw(S, { lhx: x, lhy: y, lhRot: rot }, 0.55, E.io);
   }
   async function handHome() {
-    tw(S, { lhFlip: 1 }, 0.3, E.io);
+    tw(S, { lhFlip: 1, lhTuck: 0 }, 0.3, E.io);
     await tw(S, { lhx: J.lwrist.x, lhy: J.lwrist.y - 12, lhRot: -3 }, 0.55, E.io);
     await tw(S, { lhy: J.lwrist.y, lhRot: 0 }, 0.2, E.in);
     tw(S, { lhShadow: 1 }, 0.25);
@@ -304,6 +316,9 @@
     S.track = 1; busy = false;
   }
 
+  /* The left hand and its sleeve normally pass over the cat's head (stroking); here they go under it. */
+  function handUnder(on) { N.l_hand.classList.toggle('cm-under', on); N.l_sleeve.classList.toggle('cm-under', on); }
+
   /* The cat puts a paw on the sheet and drags it; the artist gently moves the paw away. */
   async function disturb() {
     busy = true; S.track = 0;
@@ -320,13 +335,15 @@
     await tw(S, { headRot: 5.5, headX: 7, headY: 1 }, 0.45, E.io);
     tw(S, { shX: D.drag + 6, shRot: -1.6 }, 0.25, E.io);
     await tw(S, { pawX: D.pawX + D.drag + 6, pawRot: 12 }, 0.25, E.io);                 // another tug
-    await handOut(D.hx, D.hy, D.hrot);
+    handUnder(true);                                                                    // his hand slides in under the cat's chin
+    await handOut(D.hx, D.hy, D.hrot, true);
     tw(S, { cHeadRot: 2, cHeadY: 4, cHeadX: -4 }, 0.4);
     tw(S, { pawX: 6, pawY: 0, pawRot: 0, catX: 12 }, 0.6, E.io);                        // the hand eases the paw back
     await tw(S, { lhx: D.hx + 44, lhy: D.hy - 6 }, 0.6, E.io);
     await wait(0.25);
     tw(S, { shX: 0, shY: 0, shRot: 0 }, 0.75, E.io);                                    // sheet straightened on the way back
     await handHome();
+    handUnder(false);
     tw(S, { tailSpeed: 2.6, tailAmp: 2 }, 0.2);
     tw(S, { pawX: 0, catX: 0 }, 0.8, E.io);
     await tw(S, { cHeadRot: 8, cHeadX: 6, cHeadY: -4, cHeadTilt: -6 }, 0.5, E.io);      // looks away, mildly offended
