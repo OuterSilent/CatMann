@@ -1,0 +1,70 @@
+/* ---------- animated header ---------- */
+/* The picture is 2171 x 724 "stage units". --u is the length of one unit: the stage always covers the header, and every
+   piece is laid out in units, so nothing is scaled after it has been painted. Wide screens show the whole panorama;
+   narrower ones keep the height up and frame part of the scene (--cx is the unit the view centres on).
+   --u is left unregistered on purpose: each use resolves the container units itself, which every browser with
+   container queries does, registered custom properties or not. */
+.cm-hero{position:relative;overflow:hidden;width:100%;aspect-ratio:2171/724;background:#191516;isolation:isolate;container-type:size}
+/* Below 1020 px. Default framing: tall, on the artist, the sheet and the front of the cat (a phone shows 905 units).
+   data-cm-frame="wide": lower, with the whole cat in view (1293 units). Never taller than 72% of a short (landscape) screen. */
+@media (max-width:1019px){
+  .cm-hero{aspect-ratio:auto;height:min(80vw,340px);height:min(80vw,340px,72svh)}
+  .cm-hero[data-cm-frame="wide"]{height:min(56vw,340px);height:min(56vw,340px,72svh)}
+}
+@media (max-width:480px){.cm-hero:not([data-cm-frame="wide"]) .cm-stage{--cx:1250}}
+.cm-stage{--u:max(calc(100cqw / 2171),calc(100cqh / 724));--cx:1290;position:absolute;bottom:0;
+  left:clamp(calc(100cqw - 2171 * var(--u)),calc(50cqw - var(--cx) * var(--u)),0px);width:calc(2171 * var(--u));height:calc(724 * var(--u));
+  z-index:0;contain:layout style;-webkit-user-select:none;user-select:none}
+.cm-stage .n{position:absolute;left:0;top:0;width:0;height:0;transform-origin:0 0;pointer-events:none}
+/* Stacking. The pieces paint in document order; from the cat's head on they sit on levels, so that the left hand and its
+   sleeve (z3) can pass over the head when he strokes the cat, or under it (.cm-under) when he reaches for the paw. */
+.cm-stage .z2{z-index:2}
+.cm-stage .z3{z-index:3}
+.cm-stage .z4{z-index:4}
+.cm-stage .z3.cm-under{z-index:1}
+.cm-stage .mv{will-change:transform}
+.cm-stage .pc{position:absolute;display:block;overflow:visible;left:calc(var(--x) * var(--u));top:calc(var(--y) * var(--u));width:calc(var(--w) * var(--u));height:calc(var(--h) * var(--u))}
+.cm-stage .pc path{fill-rule:evenodd;clip-rule:evenodd}
+.cm-far{filter:blur(calc(.9 * var(--u)))}
+.cm-cam{filter:blur(var(--u))}
+/* the drawing on the sheet: strokes, the masks that uncover the facets, the facets (see drawing.py) */
+.cm-stage .ink{fill:none;stroke:#7f6261;stroke-width:6.4;stroke-linecap:round;stroke-linejoin:round;opacity:.94}
+.cm-stage .ink-light{stroke:#b59c95;stroke-width:2.6;opacity:.6}
+.cm-stage .ink-dark{stroke:#4d393b;stroke-width:6.8;opacity:1}
+.cm-stage .ink-fine{stroke:#705657;stroke-width:3.4;opacity:.92}
+.cm-stage .ink-mask{fill:none;stroke:#fff;stroke-width:10;stroke-linecap:round;stroke-linejoin:round}
+.cm-stage .ink-t1{fill:#8f716e;opacity:.3}
+.cm-stage .ink-t2{fill:#8f716e;opacity:.54}
+.cm-stage .ink-t3{fill:#86696a;opacity:.78}
+.cm-stage .ink-fill{fill:#4d393b}
+/* cat details */
+.cm-stage .lid{transform-box:fill-box;transform-origin:50% 0;transform:scaleY(var(--eye,0))}
+.cm-stage .lidline{fill:none;stroke:#2b1c17;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;opacity:calc((var(--eye,0) - .72)*3.6)}
+.cm-stage .whisk{fill:#e6cfc3;opacity:.82}
+/* neon heartbeat: halo, tube and a blip running along the trace (each its own layer, so the beat only composites) */
+.cm-neon polyline{fill:none;stroke-linecap:round;stroke-linejoin:round}
+.cm-neon .neon-pulse{filter:blur(calc(15 * var(--u)));opacity:0}
+.cm-neon .neon-pulse polyline{stroke:#ff7a36;stroke-width:26}
+.cm-neon .neon-tube{filter:blur(calc(1.1 * var(--u)))}
+.cm-neon .neon-edge{stroke:#f2a06a;stroke-width:16}
+.cm-neon .neon-core{stroke:#fef2e4;stroke-width:12.4}
+.cm-neon .neon-run{filter:blur(calc(2 * var(--u)));opacity:0}
+.cm-neon .neon-run polyline{stroke:#fff;stroke-width:15;stroke-dasharray:7 93;stroke-dashoffset:100}
+.cm-live .neon-pulse{animation:cm-beat 1.304s infinite}
+.cm-live .neon-run{animation:cm-run-o 2.608s linear infinite}
+.cm-live .neon-run polyline{animation:cm-run 2.608s linear infinite}
+@keyframes cm-beat{0%,100%{opacity:0}7%{opacity:.7}16%{opacity:.12}24%{opacity:.5}44%{opacity:0}}
+@keyframes cm-run-o{0%{opacity:0}6%{opacity:.85}60%{opacity:.85}70%,100%{opacity:0}}
+@keyframes cm-run{0%{stroke-dashoffset:100}70%,100%{stroke-dashoffset:7}}
+.cm-cat-hit{position:absolute;z-index:5;left:calc(1390 * var(--u));top:calc(330 * var(--u));width:calc(560 * var(--u));height:calc(310 * var(--u));border:0;padding:0;background:transparent;cursor:pointer;border-radius:40% 40% 20% 20%;-webkit-tap-highlight-color:transparent}
+.cm-cat-hit:focus-visible{outline:3px solid #ff8847;outline-offset:4px}
+@media (prefers-reduced-motion:reduce){.cm-live .neon-pulse,.cm-live .neon-run,.cm-live .neon-run polyline{animation:none}}
+.cm-paused .neon-pulse,.cm-paused .neon-run,.cm-paused .neon-run polyline{animation-play-state:paused}
+/* pause / play, bottom right of the picture */
+.cm-pause{position:absolute;right:max(10px,env(safe-area-inset-right,0px));bottom:10px;width:34px;height:34px;border:0;padding:0;border-radius:50%;background:rgba(20,17,18,.55);cursor:pointer;display:grid;place-items:center;-webkit-tap-highlight-color:transparent;opacity:.7;transition:opacity .16s}
+.cm-pause[hidden]{display:none}
+.cm-pause:hover,.cm-pause:focus-visible{opacity:1}
+.cm-pause:focus-visible{outline:2px solid #f3ddd0;outline-offset:2px}
+.cm-pause::before{content:"";width:10px;height:12px;border-left:3px solid #f3ddd0;border-right:3px solid #f3ddd0;box-sizing:border-box}
+.cm-pause[aria-pressed="true"]::before{width:0;height:0;border:0;border-left:11px solid #f3ddd0;border-top:7px solid transparent;border-bottom:7px solid transparent;margin-left:3px}
+.cm-sr{position:absolute;width:1px;height:1px;margin:-1px;overflow:hidden;clip-path:inset(50%);white-space:nowrap}

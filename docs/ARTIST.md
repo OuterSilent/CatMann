@@ -21,12 +21,12 @@ Fonte: profilo Instagram `@cosmin_mann` (screenshot del 13/11/2026). Aggiornare 
 
 | Elemento | Dove compare | Uso nel sito |
 |---|---|---|
-| **Occhi di gatto** | Foto profilo: si copre il volto con occhi di gatto disegnati | Motivo dell'header, icone, cursore |
-| **Il gatto grigio** | Foto con lui, al bar | Presenza ricorrente, "musa" |
-| **Grafite / carta** | Tutte le opere | Texture, palette, effetti di disegno |
-| **Strass / scintillio** | Giacche, firma | Micro-dettagli luminosi (glint), mai pacchiani |
-| **Musica** | Vinile CBS sull'occhio, cuffie, playlist SoundCloud | Sezione/elemento musica, ritmo delle animazioni |
-| **Il personaggio** | Occhiali da sole, cappello, giacche nere | Sezione "About" con ritratti B/N |
+| **Occhi di gatto** | Foto profilo: si copre il volto con occhi di gatto disegnati | Segnaposto delle opere, dettagli grafici |
+| **Il gatto grigio** | Foto con lui, al bar | Il gatto dell'header: osserva, chiede coccole, disturba |
+| **Grafite / carta** | Tutte le opere | Le opere come fogli sul tavolo; il disegno che nasce sul foglio nell'header |
+| **Strass / scintillio** | Giacche, firma | Micro-dettagli luminosi, mai pacchiani (per ora non usati) |
+| **Musica** | Vinile CBS sull'occhio, cuffie, playlist SoundCloud | Le cuffie e la testa a tempo nell'header, il battito al neon; sezione musica più avanti |
+| **Il personaggio** | Occhiali da sole, cappello, giacche nere | Protagonista dell'header (cuffie, occhiali scuri, felpa); sezione "Artista" |
 | **"Gattara"** | Tazza | Tono ironico e affettuoso nei micro-testi |
 
 ## Tono

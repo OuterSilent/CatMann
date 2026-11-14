@@ -1,0 +1,15 @@
+# The reference illustration and everything cut out of it stay out of the repository:
+# only the traced vectors in header/data are published.
+header/ref/
+header/out/
+header/view/
+
+# development pages written by header/build/build.py
+header/dist/test.html
+header/dist/test_manual.html
+
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
+.env

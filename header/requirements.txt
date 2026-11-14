@@ -1,0 +1,7 @@
+# Python packages for the tracing pipeline (pipe/) and the build (build/). Tested with Python 3.13.
+numpy>=2.0
+opencv-python-headless>=4.10
+scipy>=1.14
+scikit-image>=0.25
+shapely>=2.0
+vtracer>=0.6.11
