@@ -100,7 +100,8 @@ async function go(name, { first = false } = {}) {
     const isGallery = name === 'opere';
     document.body.classList.toggle('is-gallery', isGallery);
     window.scrollTo(0, 0);
-    artist.setMode(isGallery ? 'gallery' : 'desk');
+    document.body.classList.remove('is-reading');
+    artist.setMode(isGallery ? 'gallery' : (window.scrollY > 60 ? 'reading' : 'desk'));
     if (isGallery) gallery.show(); else gallery.hide();
     desk.draw();
     placeCurrentMark();
@@ -152,7 +153,7 @@ document.addEventListener('focusout', () => { ink.fadeOut(focusG); focusG = null
 
 // ---------- menu (small screens) ----------
 const nav = $('#nav'), menuBtn = $('#menu-btn');
-const small = matchMedia('(max-width: 720px)');
+const small = matchMedia('(max-width: 1240px)');
 function closeMenu() { if (!small.matches) return; nav.hidden = true; menuBtn.setAttribute('aria-expanded', 'false'); }
 async function openMenu() {
   nav.hidden = false; menuBtn.setAttribute('aria-expanded', 'true');
@@ -174,6 +175,25 @@ $('#form').addEventListener('submit', (e) => {
   ink.write(note, 320, { pen: true });
 });
 
+// ---------- room for the artist ----------
+// The header keeps a free column under the head and reserves the band down to the scrap of paper.
+function fitBand() {
+  const root = document.documentElement.style;
+  const sheetTop = $('#sheet').getBoundingClientRect().top + window.scrollY;
+  root.setProperty('--head-w', `${Math.round(artist.bodyHalf() * 2 + 16)}px`);
+  root.setProperty('--row-top', `${Math.max(14, Math.round(artist.headBottom() * 0.36 - sheetTop))}px`);
+  root.setProperty('--band-in', `${Math.round(doodle.bottom() + 34 - sheetTop)}px`);
+}
+
+// ---------- reading further down: the artist sits back and the scrap goes away ----------
+function onScroll() {
+  if (current === 'opere') return;
+  const reading = window.scrollY > 60;
+  document.body.classList.toggle('is-reading', reading);
+  artist.setMode(reading ? 'reading' : 'desk');
+}
+window.addEventListener('scroll', onScroll, { passive: true });
+
 // ---------- start ----------
 function start() {
   document.body.classList.add('ink');
@@ -183,10 +203,10 @@ function start() {
   desk.init();
   ink.frames();
   artist.init();
-  gallery.init({ works: WORKS, src: ph, label: tr, lang });
+  gallery.init({ works: WORKS, src: ph, label: tr, lang, top: () => artist.headBottom() });
   applyLang();
   syncMenu();
-  doodle.init();
+  doodle.init(fitBand);
   cat.init();
   $('#lang').addEventListener('click', toggleLang);
   go(nameFromHash(), { first: true }).then(() => strikeOther(false));

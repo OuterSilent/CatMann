@@ -38,7 +38,7 @@ def hand(box, **o):
                 sleeve=round(float(bottom[:, 0].max() - bottom[:, 0].min()), 1))
 
 
-def cat(box):
+def cat(box, min_len=14):
     x0, y0, x1, y1 = box
     g = load_gray(C)[y0:y1, x0:x1]
     big = cv2.resize(g, None, fx=UP, fy=UP, interpolation=cv2.INTER_CUBIC)
@@ -48,9 +48,12 @@ def cat(box):
     m = fill_holes(m)
     n, lab, st, _ = cv2.connectedComponentsWithStats(m)
     m = (lab == 1 + np.argmax(st[1:, cv2.CC_STAT_AREA])).astype(np.uint8)
+    m = cv2.erode(m, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5 * UP, 5 * UP)))
+    m = cv2.morphologyEx(m, cv2.MORPH_OPEN, cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (12 * UP, 12 * UP)))
     r = trace(g, thr=200, keep_inside=False, close_bottom=False)
-    allow = cv2.dilate(m, np.ones((15, 15), np.uint8))
-    keep = [l for l in r['lines'] if allow[min(int(l[:, 1].mean() * UP), allow.shape[0] - 1), min(int(l[:, 0].mean() * UP), allow.shape[1] - 1)]]
+    allow = cv2.dilate(m, np.ones((15 * UP, 15 * UP), np.uint8))
+    from centerline import length as plen
+    keep = [l for l in r['lines'] if plen(l) >= min_len and allow[min(int(l[:, 1].mean() * UP), allow.shape[0] - 1), min(int(l[:, 0].mean() * UP), allow.shape[1] - 1)]]
     return dict(w=x1 - x0, h=y1 - y0, sil=smooth_d(contour_d(m, UP), True), ink=''.join(smooth_d(l) for l in keep))
 
 

@@ -10,6 +10,7 @@ const sstep = (a, b, x) => { const t = clamp((x - a) / (b - a), 0, 1); return t 
 const css = (n) => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 const hex = (h) => { const n = parseInt(h.replace('#', ''), 16); return [(n >> 16 & 255) / 255, (n >> 8 & 255) / 255, (n & 255) / 255]; };
 
+let artistBottom = () => 0;
 let works = [], srcOf = (n) => n, label = (k) => k, lang = 'it';
 let index = 0, t = 0, moving = null; // moving: {from, to, dir} while a sheet is in the air
 let canvas, gl, prog, loc = {}, tex = new Map(), vw = 0, vh = 0, dpr = 1;
@@ -161,7 +162,7 @@ function draw() {
 function layout() {
   vw = innerWidth; vh = innerHeight; dpr = Math.min(2, devicePixelRatio || 1);
   const head = document.getElementById('sheet').getBoundingClientRect();
-  const top = Math.max(70, head.bottom) + 22, capH = 86, bottom = vh - capH - Math.max(18, vh * 0.05);
+  const top = Math.max(head.bottom, artistBottom()) + 22, capH = 86, bottom = vh - capH - Math.max(18, vh * 0.05);
   let h = Math.min(bottom - top, 780), w = h * 0.75;
   if (w > vw - 52) { w = vw - 52; h = w / 0.75; }
   rect = { x: Math.round((vw - w) / 2), y: Math.round(top + (bottom - top - h) / 2), w: Math.round(w), h: Math.round(h) };
@@ -258,7 +259,7 @@ function arrowSvg(dir) {
 }
 
 export function init(opts) {
-  works = opts.works; srcOf = opts.src; label = opts.label; lang = opts.lang;
+  works = opts.works; srcOf = opts.src; if (opts.top) artistBottom = opts.top; label = opts.label; lang = opts.lang;
   root.innerHTML = `<i class="g-under"></i><i class="g-under"></i><i class="g-under"></i><canvas aria-hidden="true"></canvas>
     <p class="g-hint" aria-hidden="true"></p>
     <button class="g-arrow prev" type="button">${arrowSvg(-1)}</button><button class="g-arrow next" type="button">${arrowSvg(1)}</button>

@@ -5,7 +5,7 @@ Idea del committente (2026-11-15). Sostituisce l'header animato "Lo sguardo".
 ## Concept
 
 Il sito è la vista dall'alto di un tavolo chiaro. Al centro c'è un foglio: è l'interfaccia.
-Dal bordo basso spuntano la testa e le braccia dell'artista, che (ri)disegna a matita ogni parte del sito quando la tocchi.
+Dal bordo alto, proprio dietro il menu, spuntano la testa e le braccia dell'artista, che (ri)disegna a matita ogni parte del sito quando la tocchi.
 Tratti fini, molta carta, un gatto piccolo in un angolo.
 
 ## Il set
@@ -14,9 +14,9 @@ Tratti fini, molta carta, un gatto piccolo in un angolo.
 |---|---|---|
 | Tavolo | sfondo fisso | legno chiarissimo, venature appena accennate; tazza, matite e gomma solo se il margine supera 120 px |
 | Foglio | al centro, scorre con la pagina | contiene tutto il contenuto, testo vero |
-| Artista | fisso sul bordo basso | testa con capelli ricci corti e cuffie, felpa, due braccia; scala in base allo schermo |
-| Foglietto | fisso accanto alla mano destra | scarabocchio generativo, diverso a ogni visita |
-| Gatto | fisso in alto a destra | dorme; alza la testa a ogni cambio pagina o al clic |
+| Artista | fisso sul bordo alto, al centro della testata | testa con capelli ricci corti e cuffie, felpa, due braccia di lunghezza naturale: per arrivare lontano si sporge col busto, non allunga il braccio; scala in base allo schermo |
+| Foglietto | sotto le mani, al centro della testata | l'artista disegna un muso di gatto pelo per pelo, a piccoli tratti curvi (occhi, naso, contorno, pelo, baffi); poi lo cancella e ne comincia un altro |
+| Gatto | fisso in basso a destra, a tratto fine come il resto | dorme; alza la testa a ogni cambio pagina o al clic |
 
 ## Ridisegni
 
@@ -38,6 +38,8 @@ Regole:
 - Il contenuto è sempre vero HTML ed è usabile subito: nessun clic aspetta un'animazione.
 - La voce di menu attiva ha un cerchio rosso: è l'unico elemento rosso della schermata.
 - Con `prefers-reduced-motion` tutto cambia all'istante, le mani restano ferme e lo scarabocchio è statico.
+
+Testata: firma a sinistra, al centro lo spazio per l'artista, a destra le voci del menu in colonna e IT/EN, a portata della mano che disegna. Sotto i 1240 px il menu diventa un pulsante. Quando si scorre per leggere, l'artista si tira indietro e il foglietto sparisce.
 
 ## Galleria
 
