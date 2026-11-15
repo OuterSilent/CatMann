@@ -1,66 +1,45 @@
-# Tecnologia
+# Tecnica
 
-## Stack consigliato
+## Stack
 
-| Area | Scelta | Perché |
-|---|---|---|
-| Framework | **Astro** (TypeScript) | Sito di contenuti, HTML statico, JS solo dove serve (isole). Ottimo per performance e SEO. |
-| Stili | CSS moderno con custom properties (`tokens.css`) + CSS modules/scoped di Astro | Nessuna dipendenza, token centralizzati. |
-| Animazioni | **GSAP** (+ ScrollTrigger, SplitText) | Sequenze precise, scroll, timeline. |
-| WebGL header | **OGL** (leggero) o Three.js minimale | Shader del reveal a grafite. |
-| Smooth scroll | **Lenis** | Scroll morbido coerente con le animazioni. Disattivato con reduced motion. |
-| Immagini | `astro:assets` (sharp) | AVIF/WebP, `srcset`, lazy loading. |
-| Contenuti | Content Collections di Astro (`src/content/works`) | Opere come file, tipizzate con Zod. |
-| i18n | Routing i18n di Astro (`it` default, `en`) | |
-| Deploy | Netlify o Vercel (statico) | Preview per ogni branch. |
-
-Alternative accettabili se serve: Vite + vanilla TS. Evitare framework SPA pesanti.
-
-## Struttura delle cartelle
+Nessun framework: HTML, CSS e moduli JavaScript in `site/`, bundle con esbuild. Proposta in attesa di conferma (`DECISIONS.md`).
 
 ```
-src/
-  components/      Nav, WorkCard, Lightbox, Footer...
-  components/header/  HeroGaze.astro, gaze.ts (WebGL), shaders/, fallback-svg.ts
-  content/works/   un file per opera + immagini
-  layouts/         BaseLayout.astro
-  pages/           index, opere, about, eventi, contatti (+ en/)
-  styles/          tokens.css, base.css, typography.css
-  lib/             motion.ts (preset GSAP dai token), reducedMotion.ts
-public/
-  fonts/           WOFF2 self-hosted
-  brand/           signature.svg, favicon
-docs/              questi documenti
+site/
+  index.html          contenuto in italiano, chiavi data-i18n per l'inglese
+  css/tokens.css      token (colori, font, spazi, durate)
+  css/site.css        layout e componenti
+  js/main.js          avvio, lingua, navigazione, hover/focus/press
+  js/artist.js        testa e braccia: cinematica inversa, tubi delle maniche
+  js/ink.js           tratti che si tracciano da soli, cornici a mano
+  js/rough.js         geometria "a mano" (linee, rettangoli, ellissi, tratteggi)
+  js/gallery.js       pila di disegni con ricciolo (WebGL)
+  js/doodle.js        il ritratto del gatto, il foglio dell'artista e le sue mani
+  js/desk.js          tavolo e oggetti
+  js/content.js       testi inglesi, elenco delle opere
+  js/figures.js       GENERATO: tracciati di mani e testa
+tools/
+  trace/              ricalco a linea centrale dei riferimenti (Python)
+  extract_placeholders.py   immagini provvisorie dallo screenshot Instagram
+  build.mjs           dist/ e anteprima in un file solo
 ```
 
-## Convenzioni
+## Come funziona il ridisegno
 
-- TypeScript strict. Nomi di file componenti in PascalCase, utility in camelCase.
-- Durate ed easing in JS letti dai token (`lib/motion.ts`), mai numeri sparsi.
-- Ogni animazione passa da un helper che controlla `prefers-reduced-motion`.
-- Commit piccoli e descrittivi in inglese. Branch per feature.
+`ink.stroke()` crea un tracciato SVG nel livello `#ink` del foglio e lo rivela con `stroke-dashoffset`. La mano dell'artista non c'entra.
+`doodle` genera il ritratto (mappa di toni, verso del pelo, elenco ordinato di tratti), muove la matita tratto per tratto e dice ad `artist` dove sono le due mani; gestisce anche il foglio che scorre con la pagina e viene messo via.
+`artist` risolve le braccia (spalla, gomito, mano) con lunghezze fisse e disegna maniche e pieghe.
 
-## Budget di performance
+## Performance e accessibilità
 
-- Lighthouse mobile ≥ 90 su Performance, 100 su Accessibility e SEO.
-- LCP < 2,5 s, CLS < 0,05, INP < 200 ms.
-- JS totale in home < 200 KB gzip (header incluso).
-- Font: max 4 file WOFF2, `font-display: swap`, preload di quello display.
+- JS circa 77 KB gzip, di cui la maggior parte sono i tracciati delle figure.
+- Testo vero, navigazione ad ancore (`#opere`, `#chi-e`, `#negozio`, `#contatti`), focus visibile disegnato a mano, `aria-current` sulla voce attiva.
+- La galleria ha pulsanti, frecce da tastiera e un elenco testuale nascosto delle opere.
+- `prefers-reduced-motion`: nessun movimento.
 
-## Accessibilità
+## Da fare
 
-- Navigazione completa da tastiera, focus visibile (anello `--c-paper` 2 px).
-- `alt` obbligatorio per ogni opera.
-- Contrasti AA minimo.
-- Il contenuto non dipende mai da un'animazione per essere letto.
-
-## SEO e social
-
-- Meta title/description per pagina, Open Graph con un'opera come immagine.
-- Dati strutturati `Person` (artista) e `VisualArtwork` per le opere.
-- Sitemap e `robots.txt`.
-
-## Privacy
-
-- Embed SoundCloud/Instagram caricati solo dopo il click dell'utente.
-- Nessun tracker di terze parti di default; se servono statistiche, una soluzione cookieless (Plausible o simili).
+- Font self-hosted (oggi Google Fonts).
+- Immagini vere in AVIF/WebP responsive.
+- Prova su Safari, Firefox, iOS e Android.
+- Hosting e dominio.
