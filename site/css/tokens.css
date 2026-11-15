@@ -1,0 +1,44 @@
+/* Design tokens. Source of truth: docs/DESIGN.md */
+:root {
+  /* colour: paper, graphite and one accent */
+  --c-desk: #e9e5dd;
+  --c-desk-grain: #d9d4ca;
+  --c-paper: #fcfbf8;
+  --c-paper-shade: #f1eee8;
+  --c-ink: #232327;
+  --c-ink-soft: #6b6a70;
+  --c-hair: #bdbab4;
+  --c-cat: #dcdad6;
+  --c-vinyl: #d8392f;
+  --c-shadow: 60 50 40;
+
+  /* type */
+  --f-display: "Cormorant Garamond", "Times New Roman", serif;
+  --f-text: "Work Sans", system-ui, sans-serif;
+  --f-hand: "Caveat", "Segoe Print", cursive;
+  --f-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --fs-xs: clamp(0.72rem, 0.7rem + 0.1vw, 0.8rem);
+  --fs-sm: clamp(0.86rem, 0.84rem + 0.1vw, 0.94rem);
+  --fs-base: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  --fs-lg: clamp(1.25rem, 1.15rem + 0.5vw, 1.6rem);
+  --fs-xl: clamp(2rem, 1.5rem + 2.4vw, 3.4rem);
+  --fs-hero: clamp(2.7rem, 1.6rem + 5.4vw, 6rem);
+
+  /* space (4 px base) */
+  --s-1: 4px; --s-2: 8px; --s-3: 12px; --s-4: 16px; --s-6: 24px; --s-8: 32px;
+  --s-12: 48px; --s-16: 64px; --s-24: 96px;
+
+  /* line */
+  --stroke: 1.25px;
+
+  /* motion */
+  --d-mark: 220ms;   /* a hover mark */
+  --d-press: 200ms;  /* button hatch */
+  --d-write: 260ms;  /* a heading being written */
+  --d-menu: 400ms;
+  --d-page: 600ms;   /* longest redraw */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+
+  color-scheme: light;
+}

@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Cosmin Mann Art</title>
+<meta name="description" content="Cosmin Mann, artista: ritratti iperrealisti di gatti a grafite.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@500&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=IBM+Plex+Mono:wght@400&family=Work+Sans:wght@400;500&display=swap">
+<link rel="stylesheet" href="css/tokens.css">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<!--BODY-->
+<div id="desk" aria-hidden="true"><svg id="grain"></svg><svg id="props"></svg></div>
+
+<main id="sheet">
+  <header class="top">
+    <a class="sig" href="#home" aria-label="Cosmin Mann Art, home">Cosmin Mann <span>Art</span></a>
+    <button id="menu-btn" type="button" aria-expanded="false" aria-controls="nav" data-i18n="menu">Menu</button>
+    <nav id="nav" aria-label="Principale" data-i18n-aria="navLabel">
+      <ul>
+        <li><a href="#opere" data-i18n="nav.works">Opere</a></li>
+        <li><a href="#chi-e" data-i18n="nav.about">Chi è</a></li>
+        <li><a href="#negozio" data-i18n="nav.shop">Negozio</a></li>
+        <li><a href="#contatti" data-i18n="nav.contact">Contatti</a></li>
+      </ul>
+    </nav>
+    <button id="lang" type="button" aria-label="Switch to English"><span data-l="it">IT</span><span data-l="en">EN</span></button>
+  </header>
+
+  <section id="v-home" class="view" data-view="home">
+    <div class="hero">
+      <div class="stack">
+        <p class="eyebrow fade" data-i18n="home.eyebrow">Grafite su carta · ritratti di gatti</p>
+        <h1 data-write data-i18n-html="home.title">Disegno gatti <em>come se fossero persone.</em></h1>
+        <p class="lede fade" data-i18n="home.lede">Un pelo alla volta, da una fotografia, finché non ti guardano.</p>
+        <a class="btn framed fade" href="#opere"><span data-i18n="home.cta">Sfoglia le opere</span></a>
+      </div>
+      <a class="ministack fade" href="#opere" aria-label="Apri la pila dei disegni" data-i18n-aria="home.stackLabel">
+        <i></i><i></i>
+        <span class="topsheet"><img data-ph="work-01" alt="" width="811" height="1100"><span class="mono"><span>№ 01</span><span data-i18n="tech.pencil">matite colorate</span></span></span>
+      </a>
+    </div>
+    <div class="rule framed fade" data-frame="rule"></div>
+    <div class="cols">
+      <div class="fade"><p class="eyebrow" data-i18n="home.c1.k">Chi è</p><h3 data-i18n="home.c1.t">Cosmin disegna con le cuffie in testa e un gatto grigio sul tavolo.</h3><a class="tlink" href="#chi-e" data-i18n="home.c1.a">Conoscilo</a></div>
+      <div class="fade"><p class="eyebrow" data-i18n="home.c2.k">Negozio</p><h3 data-i18n="home.c2.t">Alcuni originali cercano una parete. Ogni foglio è unico.</h3><a class="tlink" href="#negozio" data-i18n="home.c2.a">Vedi i disegni disponibili</a></div>
+      <div class="fade"><p class="eyebrow" data-i18n="home.c3.k">Musica</p><h3 data-i18n="home.c3.t">Cosa ascolta mentre disegna: la playlist che ha scelto.</h3><a class="tlink" href="https://on.soundcloud.com/A7cC1Ehh1Hdys15ktx" target="_blank" rel="noopener" data-i18n="home.c3.a">Apri su SoundCloud</a></div>
+    </div>
+  </section>
+
+  <section id="v-opere" class="view" data-view="opere" hidden>
+    <h1 class="vh" data-i18n="nav.works">Opere</h1>
+    <ol class="vh" id="works-list"></ol>
+  </section>
+
+  <section id="v-chi-e" class="view" data-view="chi-e" hidden>
+    <div class="about">
+      <div class="stack">
+        <figure class="portrait framed fade"><img data-ph="portrait" alt="Cosmin Mann con una maschera di carta: occhi di gatto disegnati a grafite" data-i18n-alt="about.portraitAlt" width="480" height="480"></figure>
+        <p class="note fade" data-i18n="about.note">gli occhi sono sempre la prima cosa</p>
+      </div>
+      <div class="stack">
+        <p class="eyebrow fade" data-i18n="about.eyebrow">Chi è</p>
+        <h1 data-write data-i18n-html="about.title">Cosmin Mann, <em>artista.</em></h1>
+        <p class="fade" data-i18n="about.p1">Disegna ritratti iperrealisti a grafite, quasi sempre gatti. Parte da una fotografia sul telefono e la ricostruisce pelo per pelo, finché sulla carta non resta uno sguardo.</p>
+        <p class="fade" data-i18n="about.p2">Lavora ai tavolini dei bar, con il caffè accanto e la musica nelle cuffie. Il gatto grigio che vedi in alto è il suo, e di solito dorme sul foglio sbagliato.</p>
+        <ul class="tools note fade"><li>Koh-i-Noor</li><li>Caran d'Ache Pablo</li><li data-i18n="about.tool3">molto caffè</li><li data-i18n="about.tool4">un gatto</li></ul>
+        <div class="snaps">
+          <figure class="framed fade"><img data-ph="about-01" alt="Cosmin al lavoro su un disegno, con le cuffie" data-i18n-alt="about.snap1" width="676" height="900"></figure>
+          <figure class="framed fade"><img data-ph="about-02" alt="Cosmin con il suo gatto grigio" data-i18n-alt="about.snap2" width="676" height="900"></figure>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="v-negozio" class="view" data-view="negozio" hidden>
+    <div class="stack">
+      <p class="eyebrow fade" data-i18n="shop.eyebrow">Negozio · originali</p>
+      <h1 data-write data-i18n-html="shop.title">Disegni <em>che cercano una parete.</em></h1>
+      <p class="lede fade" data-i18n="shop.lede">Fogli unici, firmati. Il negozio per ora è una prova: prezzi e disponibilità sono segnaposto.</p>
+    </div>
+    <div class="shop" id="shop"></div>
+  </section>
+
+  <section id="v-contatti" class="view" data-view="contatti" hidden>
+    <div class="stack">
+      <p class="eyebrow fade" data-i18n="contact.eyebrow">Contatti · commissioni</p>
+      <h1 data-write data-i18n-html="contact.title">Scrivimi <em>del tuo gatto.</em></h1>
+      <p class="lede fade" data-i18n="contact.lede">Per un ritratto su commissione o per un originale, lascia due righe.</p>
+    </div>
+    <form class="form" id="form" novalidate>
+      <div class="field fade"><label for="f-name" data-i18n="contact.name">Nome</label><div class="line framed" data-frame="under"><input id="f-name" name="name" autocomplete="name"></div></div>
+      <div class="field fade"><label for="f-mail" data-i18n="contact.email">Email</label><div class="line framed" data-frame="under"><input id="f-mail" name="email" type="email" autocomplete="email"></div></div>
+      <div class="field fade"><label for="f-msg" data-i18n="contact.msg">Messaggio</label><div class="line framed" data-frame="under"><textarea id="f-msg" name="message" rows="3"></textarea></div></div>
+      <div class="links fade" style="align-items:center">
+        <button class="btn framed" type="submit"><span data-i18n="contact.send">Invia</span></button>
+        <p class="note" id="form-note" role="status" aria-live="polite"></p>
+      </div>
+    </form>
+    <div class="links fade">
+      <a class="tlink" href="https://www.instagram.com/cosmin_mann/" target="_blank" rel="noopener">Instagram @cosmin_mann</a>
+      <a class="tlink" href="https://on.soundcloud.com/A7cC1Ehh1Hdys15ktx" target="_blank" rel="noopener" data-i18n="contact.playlist">La playlist su SoundCloud</a>
+    </div>
+  </section>
+
+  <footer>
+    <span class="sig">Cosmin Mann <span>Art</span></span>
+    <a class="tlink" href="https://www.instagram.com/cosmin_mann/" target="_blank" rel="noopener">@cosmin_mann</a>
+    <a class="tlink" href="https://on.soundcloud.com/A7cC1Ehh1Hdys15ktx" target="_blank" rel="noopener">SoundCloud</a>
+    <span class="mono" data-i18n="footer.note">Anteprima · testi e immagini provvisori</span>
+  </footer>
+  <svg id="ink" aria-hidden="true"></svg>
+</main>
+
+<div id="gallery" hidden></div>
+<div id="scrap" aria-hidden="true"><canvas></canvas></div>
+<button id="cat" type="button" aria-label="Il gatto di Cosmin" data-i18n-aria="cat.label"><span class="purr" aria-hidden="true">prr…</span></button>
+<svg id="artist" aria-hidden="true"></svg>
+<script type="module" src="js/main.js"></script>
+<!--/BODY-->
+</body>
+</html>

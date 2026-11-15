@@ -2,28 +2,18 @@
 
 ## Mappa del sito
 
+Una pagina sola con viste ad ancora:
+
 ```
-/                 Home: header + selezione opere + teaser about + musica + contatti
-/opere            Portfolio completo (filtrabile per serie/tecnica)
-/opere/[slug]     Dettaglio opera
-/about            Chi è Cosmin, ritratti, processo
-/eventi           Eventi e mostre (da "EVENTS 2026")
-/contatti         Contatti e commissioni
-/en/...           Versione inglese (stessa struttura)
+#home       titolo, pila in miniatura, tre rimandi (Chi è, Negozio, Musica)
+#opere      galleria a pila
+#chi-e      ritratto, testo, strumenti, due foto
+#negozio    originali con prezzo (dimostrativo)
+#contatti   modulo (dimostrativo), Instagram, playlist SoundCloud
 ```
 
-Fase 1: si può partire con una **one-page** (home con ancore) e aggiungere le pagine dopo.
-
-## Home — sezioni in ordine
-
-1. **Header "Lo sguardo"** (vedi `HEADER.md`).
-2. **Manifesto breve:** 1–2 righe in Instrument Serif grande. Segnaposto: *"Disegno gatti come se fossero persone. Un pelo alla volta."*
-3. **Opere selezionate:** 6 opere in griglia asimmetrica, link a `/opere`.
-4. **Processo:** striscia orizzontale con foto di lavoro (mani, matite, caffè, il gatto grigio), scroll orizzontale guidato dallo scroll verticale su desktop.
-5. **About (teaser):** ritratto B/N di Cosmin + 3 righe + link.
-6. **Musica:** "Cosa ascolto mentre disegno" + embed della playlist SoundCloud (caricato solo al click, per performance e privacy).
-7. **Contatti / commissioni:** CTA rossa "Commissiona un ritratto" (se confermato), email, Instagram.
-8. **Footer** con firma grande.
+Italiano nella pagina, inglese in `site/js/content.js`. Tutti i testi sono provvisori.
+Le opere oggi sono un elenco in `content.js` con immagini segnaposto; il modello qui sotto vale per quando arriveranno quelle vere.
 
 ## Modello dati di un'opera
 
