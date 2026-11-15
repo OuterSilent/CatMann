@@ -76,11 +76,6 @@ def head():
 FIG = {
     'handRwrite': dict(hand((200, 90, 490, 450), erase=[(0, 20, 58, 95)]), tip=[61.5, 78.5]),
     'handL': dict(hand((15, 95, 210, 455)), tip=[118, 106]),
-    'handRsweep': dict(hand((1150, 85, 1448, 455), close_sides=.5), tip=[85, 125]),
-    'handReraser': dict(hand((230, 625, 500, 1000), close_sides=.5), tip=[38, 61], elbow=[173, 375], sleeve=118),
-    'catCurl': cat((225, 75, 610, 410)),
-    'catLoaf': cat((815, 110, 1200, 410)),
-    'catSit': cat((285, 590, 570, 940)),
     'head': head(),
 }
 

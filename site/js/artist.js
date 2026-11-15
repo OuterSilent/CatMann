@@ -3,7 +3,9 @@
 // Everything is solved in a "local" frame where the artist sits at the bottom (the frame the
 // figures were traced in) and drawn through a vertical flip, so the drawing hand is on the
 // viewer's right, next to the menu.
-// Arms keep their natural length: a point out of reach is pointed at, never reached by stretching.
+// Arms have fixed lengths and bend at the elbow, which points away from the body.
+// The artist only works on his own drawing: the page tells him where his two hands are (hands()),
+// he never reaches for the interface.
 import { FIG } from './figures.js';
 
 const NS = 'http://www.w3.org/2000/svg';
@@ -20,12 +22,12 @@ const reduce = matchMedia('(prefers-reduced-motion: reduce)');
 
 // Proportions in the units of the traced figures (the head is about 320 wide).
 const HEAD_VIS = 300;   // rows of the head drawing that show below the top edge
-const SHOULDER_Y = 470; // shoulder line, in head rows
-const SHOULDER_X = 220; // half the shoulder width
-const UPPER = 300;      // upper arm, seen from above (foreshortened)
-const FORE = 330;       // forearm between the elbow and the cuff where the traced hand starts
-const LEAN = 150;       // how far the head and shoulders may lean over the sheet
-const SHIFT = 120;      // how far the body may slide sideways on the chair
+const SHOULDER_Y = 450; // shoulder line, in head rows
+const SHOULDER_X = 225; // half the shoulder width
+const UPPER = 400;      // upper arm
+const FORE = 70;        // sleeve between the elbow and the traced forearm (the tracing holds most of it)
+const LEAN = 26;        // how far the head follows the pencil
+const BACK = 150;       // how far he sits back when the drawing is put away
 
 const svg = document.getElementById('artist');
 const root = el('g', {}, svg);
@@ -47,11 +49,11 @@ const gHands = el('g', {}, root);
 const gTorso = el('g', {}, root);
 const tube = (parent) => ({ o: el('path', { class: 'tube-o' }, parent), i: el('path', { class: 'tube-i' }, parent), f: el('path', { class: 'ln' }, parent) });
 const arms = {
-  L: { side: -1, fig: 'handL', x: 0, y: 0, upper: tube(gArms), fore: tube(gArms), figs: {}, rest: [0, 0] },
-  R: { side: 1, fig: 'handRwrite', x: 0, y: 0, upper: tube(gArms), fore: tube(gArms), figs: {}, rest: [0, 0] },
+  L: { side: -1, fig: 'handL', x: 0, y: 0, sleeve: tube(gArms), figs: {} },
+  R: { side: 1, fig: 'handRwrite', x: 0, y: 0, sleeve: tube(gArms), figs: {} },
 };
 arms.L.figs.handL = figure('handL', gHands);
-for (const k of ['handRwrite', 'handRsweep', 'handReraser']) arms.R.figs[k] = figure(k, gHands);
+arms.R.figs.handRwrite = figure('handRwrite', gHands);
 const shoulders = tube(gTorso);
 const gHead = el('g', {}, gTorso);
 {
@@ -63,7 +65,7 @@ const gHead = el('g', {}, gTorso);
   el('path', { d: h.bandSil, class: 'paperfill' }, gHead);
   el('path', { d: h.band, class: 'ln', 'vector-effect': 'non-scaling-stroke' }, gHead);
 }
-el('style', {}, svg).textContent = '.tube-o{fill:none;stroke:var(--c-ink);stroke-linecap:round}.tube-i{fill:none;stroke:var(--c-paper);stroke-linecap:round}';
+el('style', {}, svg).textContent = '.tube-o{fill:none;stroke:var(--c-ink);stroke-linecap:round;stroke-linejoin:round}.tube-i{fill:none;stroke:var(--c-paper);stroke-linecap:round;stroke-linejoin:round}';
 
 // viewport <-> local (local = artist at the bottom)
 const toLocal = (x, y) => [x, vh - y];
@@ -74,7 +76,7 @@ export const headBottom = () => HEAD_VIS * S;
 /** Half width of the head with the ear cups. */
 export const headHalf = () => 195 * S;
 /** Half width taken by the shoulders and the upper arms. */
-export const bodyHalf = () => (SHOULDER_X + 70) * S;
+export const bodyHalf = () => (SHOULDER_X + 215) * S;
 export function scale() { return S; }
 export function center() { return cx; }
 
@@ -87,30 +89,11 @@ function layout() {
   cx = vw / 2;
   dirty = true;
 }
-/** Where the hands rest, in viewport px: set by the page around the scrap of paper. */
-let deskRest = null;
-export function setRest(right, left) {
-  deskRest = [toLocal(...right), toLocal(...left)];
-  applyRest();
-  if (!placed) { placed = true; for (const a of [arms.L, arms.R]) { a.x = a.rest[0]; a.y = a.rest[1]; } }
-  dirty = true;
-}
-let placed = false;
-// When he is not drawing on the scrap (gallery, or the visitor is reading further down) he sits
-// back and rests his hands on the edge of the sheet, close to himself.
-function applyRest() {
-  if (mode === 'desk' && deskRest) { arms.R.rest = deskRest[0]; arms.L.rest = deskRest[1]; return; }
-  const y = HEAD_VIS * S * 0.8;
-  arms.R.rest = toLocal(cx + 200 * S, y);
-  arms.L.rest = toLocal(cx - 210 * S, y + 10 * S);
-}
-
 // ---- pose ----
 function shoulder(side) {
   return [cx + body.shift + side * SHOULDER_X * S, vh - HEAD_VIS * S + SHOULDER_Y * S - body.lean + body.back];
 }
 const forearm = (f) => Math.hypot(f.tip[0] - f.elbow[0], f.tip[1] - f.elbow[1]);
-const reachOf = (a) => (UPPER + FORE + forearm(FIG[a.fig])) * S;
 
 function solveArm(a) {
   const f = FIG[a.fig];
@@ -118,17 +101,14 @@ function solveArm(a) {
   const [sx, sy] = shoulder(a.side);
   let tx = a.x, ty = a.y;
   let dx = tx - sx, dy = ty - sy, d = Math.hypot(dx, dy) || 1;
-  const max = (u + fl) * 0.995;
+  const max = (u + fl) * 0.985, min = Math.abs(u - fl) + 8 * S;
   if (d > max) { tx = sx + (dx / d) * max; ty = sy + (dy / d) * max; dx = tx - sx; dy = ty - sy; d = max; }
-  // Seen from above, a bent arm mostly folds downward (toward the floor), so in the drawing the
-  // elbow stays close to the shoulder-hand line and the upper arm just looks shorter.
-  const dd = Math.max(d, Math.abs(u - fl) + 1);
+  const dd = Math.max(d, min);
   const k = (u * u - fl * fl + dd * dd) / (2 * dd);
-  const h = Math.sqrt(Math.max(0, u * u - k * k)) * 0.22;
-  const bx = sx + (dx / d) * Math.min(k, d * 0.42), by = sy + (dy / d) * Math.min(k, d * 0.42);
+  const h = Math.sqrt(Math.max(0, u * u - k * k));
   const px = -dy / d, py = dx / d;
   const sign = px * a.side >= 0 ? 1 : -1; // the elbow points away from the body
-  const ex = bx + px * h * sign, ey = by + py * h * sign;
+  const ex = sx + (dx / d) * k + px * h * sign, ey = sy + (dy / d) * k + py * h * sign;
   // traced hand: rotate so that its own forearm axis lies along elbow -> tip
   const v0x = f.tip[0] - f.elbow[0], v0y = f.tip[1] - f.elbow[1];
   const rot = Math.atan2(ty - ey, tx - ex) - Math.atan2(v0y, v0x);
@@ -137,23 +117,46 @@ function solveArm(a) {
   return { sx, sy, ex, ey, cuffX, cuffY, rot, f, tx, ty };
 }
 
-function setTube(t, x0, y0, x1, y1, w, side, folds) {
-  const d = `M${x0.toFixed(1)},${y0.toFixed(1)}L${x1.toFixed(1)},${y1.toFixed(1)}`;
+const P2 = (x, y) => `${x.toFixed(1)},${y.toFixed(1)}`;
+/** One sleeve from the shoulder round the elbow to the cuff, with its folds. */
+function setSleeve(t, p, w, side) {
+  const { sx, sy, ex, ey, cuffX: qx, cuffY: qy } = p;
+  const a1 = Math.hypot(ex - sx, ey - sy) || 1, a2 = Math.hypot(qx - ex, qy - ey) || 1;
+  const u1x = (ex - sx) / a1, u1y = (ey - sy) / a1, u2x = (qx - ex) / a2, u2y = (qy - ey) / a2;
+  const r = Math.min(w * 0.42, a1 * 0.4, a2 * 0.6);
+  const d = `M${P2(sx, sy)}L${P2(ex - u1x * r, ey - u1y * r)}Q${P2(ex, ey)} ${P2(ex + u2x * r, ey + u2y * r)}L${P2(qx, qy)}`;
   t.o.setAttribute('d', d); t.i.setAttribute('d', d);
   t.o.setAttribute('stroke-width', w + strokeW); t.i.setAttribute('stroke-width', Math.max(0, w - strokeW));
-  if (!folds) { t.f.setAttribute('d', ''); return; }
-  const ax = x1 - x0, ay = y1 - y0, al = Math.hypot(ax, ay) || 1, ux = ax / al, uy = ay / al, nx = -uy, ny = ux;
+  // folds: a few along the upper arm, and the creases that gather inside the bent elbow
   let fd = '';
-  const n = Math.max(1, Math.round(al / (110 * S)));
-  for (let i = 1; i <= n; i++) {
-    const t0 = (i - 0.4) / (n + 0.3), s = (i % 2 ? 1 : -1) * side;
-    const bx = x0 + ax * t0, by = y0 + ay * t0;
-    const p0x = bx + nx * s * w * 0.5, p0y = by + ny * s * w * 0.5;
-    const p1x = bx - nx * s * w * 0.05 + ux * w * 0.28, p1y = by - ny * s * w * 0.05 + uy * w * 0.28;
-    const mx = (p0x + p1x) / 2 + ux * w * 0.1, my = (p0y + p1y) / 2 + uy * w * 0.1;
-    fd += `M${p0x.toFixed(1)},${p0y.toFixed(1)}Q${mx.toFixed(1)},${my.toFixed(1)} ${p1x.toFixed(1)},${p1y.toFixed(1)}`;
+  const fold = (x0, y0, ux, uy, len, n, flip) => {
+    const nx = -uy, ny = ux;
+    for (let i = 1; i <= n; i++) {
+      const t0 = (i - 0.35) / (n + 0.4), s = (i % 2 ? 1 : -1) * flip;
+      const bx = x0 + ux * len * t0, by = y0 + uy * len * t0;
+      const p0x = bx + nx * s * w * 0.5, p0y = by + ny * s * w * 0.5;
+      const p1x = bx - nx * s * w * 0.02 + ux * w * 0.26, p1y = by - ny * s * w * 0.02 + uy * w * 0.26;
+      fd += `M${P2(p0x, p0y)}Q${P2((p0x + p1x) / 2 + ux * w * 0.1, (p0y + p1y) / 2 + uy * w * 0.1)} ${P2(p1x, p1y)}`;
+    }
+  };
+  fold(sx, sy, u1x, u1y, a1 - r, Math.max(2, Math.round(a1 / (120 * S))), side);
+  // inner side of the elbow = the side the forearm turns toward
+  const cross = u1x * u2y - u1y * u2x, ins = cross >= 0 ? 1 : -1;
+  const bend = Math.min(1, Math.abs(cross) * 1.6);
+  const bx = -(u1x - u2x), by = -(u1y - u2y), bl = Math.hypot(bx, by) || 1; // bisector pointing to the inner side
+  const ix = ex + (bx / bl) * w * 0.5 * 0.96, iy = ey + (by / bl) * w * 0.5 * 0.96;
+  // two creases across the inside of the bend, following the forearm
+  for (const [along, len] of [[0.02, 0.62], [0.2, 0.4]]) {
+    const x0 = ix + u2x * w * along, y0 = iy + u2y * w * along, l = w * len * bend;
+    const x1 = x0 - (bx / bl) * l + u2x * l * 0.25, y1 = y0 - (by / bl) * l + u2y * l * 0.25;
+    fd += `M${P2(x0, y0)}Q${P2((x0 + x1) / 2 + u2x * l * 0.22, (y0 + y1) / 2 + u2y * l * 0.22)} ${P2(x1, y1)}`;
   }
   t.f.setAttribute('d', fd);
+}
+function setTube(t, x0, y0, x1, y1, w) {
+  const d = `M${P2(x0, y0)}L${P2(x1, y1)}`;
+  t.o.setAttribute('d', d); t.i.setAttribute('d', d);
+  t.o.setAttribute('stroke-width', w + strokeW); t.i.setAttribute('stroke-width', Math.max(0, w - strokeW));
 }
 
 let dirty = true;
@@ -162,25 +165,21 @@ function render() {
   for (const key of ['L', 'R']) {
     const a = arms[key];
     const p = solveArm(a);
-    const w = p.f.sleeve * S;
-    setTube(a.upper, p.sx, p.sy, p.ex, p.ey, w * 1.18, a.side, true);
-    setTube(a.fore, p.ex, p.ey, p.cuffX, p.cuffY, w * 1.04, -a.side, true);
+    setSleeve(a.sleeve, p, p.f.sleeve * S * 1.08, a.side);
     for (const k in a.figs) {
       const g = a.figs[k];
-      if (k !== a.fig) { g.setAttribute('display', 'none'); continue; }
-      g.removeAttribute('display');
       g.setAttribute('transform', `translate(${p.cuffX.toFixed(2)} ${p.cuffY.toFixed(2)}) rotate(${(p.rot * 180 / Math.PI).toFixed(2)}) scale(${S}) translate(${-p.f.elbow[0]} ${-p.f.elbow[1]})`);
     }
-    a.solved = p;
   }
   const [lx, sy] = shoulder(-1), [rx] = shoulder(1);
-  setTube(shoulders, lx, sy, rx, sy, 250 * S, 1, false);
-  const hx = cx + body.shift - 265 * S + headTurn * 12 * S;
+  setTube(shoulders, lx, sy, rx, sy, 250 * S);
+  const hx = cx + body.shift - 265 * S + headTurn * 10 * S;
   const hy = vh - HEAD_VIS * S - body.lean + body.back;
-  gHead.setAttribute('transform', `translate(${hx.toFixed(2)} ${hy.toFixed(2)}) rotate(${(headTurn * 4 + nod).toFixed(2)} ${265 * S} ${300 * S}) scale(${S})`);
+  gHead.setAttribute('transform', `translate(${hx.toFixed(2)} ${hy.toFixed(2)}) rotate(${(headTurn * 3 + nod).toFixed(2)} ${265 * S} ${300 * S}) scale(${S})`);
 }
 
 // ---- motion ----
+// Generic tweens (also used by the ink marks of the page, which draw themselves).
 const tweens = new Set();
 export function tween(ms, fn) {
   return new Promise((res) => {
@@ -188,12 +187,15 @@ export function tween(ms, fn) {
     tweens.add({ t0: performance.now(), ms, fn, res });
   });
 }
-let idleTarget = null; // () => [x, y] viewport, for the drawing hand when nothing else happens
-export function setIdle(fn) { idleTarget = fn; }
-let busy = 0;
-export const isBusy = () => busy > 0;
-export function acquire() { busy++; }
-export function release() { busy = Math.max(0, busy - 1); }
+
+/** Where the two hands are, in viewport px: [x, y] of the pencil tip and of the left hand. */
+export function hands(right, left) {
+  const [rx, ry] = toLocal(...right), [lx, ly] = toLocal(...left);
+  const R = arms.R, L = arms.L;
+  if (R.x !== rx || R.y !== ry || L.x !== lx || L.y !== ly) { R.x = rx; R.y = ry; L.x = lx; L.y = ly; dirty = true; }
+}
+/** 0 = bent over the drawing, 1 = sitting back. */
+export function sitBack(k) { body.backTo = k * BACK * S; }
 
 function frame(now) {
   for (const t of tweens) {
@@ -201,64 +203,22 @@ function frame(now) {
     t.fn(k); dirty = true;
     if (k >= 1) { tweens.delete(t); t.res(); }
   }
-  const R = arms.R, L = arms.L;
-  if (!busy && !reduce.matches) {
-    const tgt = mode === 'desk' && idleTarget ? idleTarget() : null;
-    const [rx, ry] = tgt ? toLocal(...tgt) : R.rest;
-    if (Math.abs(R.x - rx) + Math.abs(R.y - ry) > 0.05) { R.x = lerp(R.x, rx, 0.22); R.y = lerp(R.y, ry, 0.22); dirty = true; }
-    if (R.fig !== 'handRwrite') { R.fig = 'handRwrite'; dirty = true; }
-  }
-  // the left hand keeps the paper still; when the right one travels far it follows a little
-  {
-    const far = busy && Math.hypot(R.x - R.rest[0], R.y - R.rest[1]) > 160 * S;
-    const lx = far ? clamp(L.rest[0] + (R.x - R.rest[0]) * 0.35, cx - 700 * S, R.x - 260 * S) : L.rest[0];
-    const ly = far ? L.rest[1] + (R.y - R.rest[1]) * 0.3 : L.rest[1];
-    if (Math.abs(L.x - lx) + Math.abs(L.y - ly) > 0.3) { L.x = lerp(L.x, lx, 0.08); L.y = lerp(L.y, ly, 0.08); dirty = true; }
-  }
-  // the body leans over the sheet and slides toward where the pencil has to go
-  {
-    const [sx, sy] = [cx + SHOULDER_X * S, vh - HEAD_VIS * S + SHOULDER_Y * S];
-    const need = Math.hypot(R.x - sx, R.y - sy) - reachOf(R) * 0.82;
-    const lean = busy ? clamp(need, 0, LEAN * S) : 0;
-    const shift = busy ? clamp((R.x - sx) * 0.3, -SHIFT * S, SHIFT * S) : 0;
-    if (Math.abs(lean - body.lean) > 0.2) { body.lean = lerp(body.lean, lean, 0.12); dirty = true; }
-    if (Math.abs(shift - body.shift) > 0.2) { body.shift = lerp(body.shift, shift, 0.1); dirty = true; }
-    if (Math.abs(body.backTo - body.back) > 0.2) { body.back = lerp(body.back, body.backTo, 0.1); dirty = true; }
-    const turn = clamp((R.x - cx - body.shift) / (vw * 0.4), -1, 1);
-    if (Math.abs(turn - headTurn) > 0.004) { headTurn = lerp(headTurn, turn, 0.08); dirty = true; }
-    if (!reduce.matches) { const n = Math.sin(now / 560) * 0.4; if (Math.abs(n - nod) > 0.02) { nod = n; dirty = true; } }
-  }
+  // the head follows the pencil, slowly and only a little
+  const R = arms.R;
+  const lean = clamp((vh - R.y - HEAD_VIS * S) / (400 * S), 0, 1) * LEAN * S * (1 - body.backTo / (BACK * S || 1));
+  const shift = clamp((R.x - cx) * 0.06, -30 * S, 30 * S);
+  if (Math.abs(lean - body.lean) > 0.1) { body.lean = lerp(body.lean, lean, 0.03); dirty = true; }
+  if (Math.abs(shift - body.shift) > 0.1) { body.shift = lerp(body.shift, shift, 0.03); dirty = true; }
+  if (Math.abs(body.backTo - body.back) > 0.1) { body.back = lerp(body.back, body.backTo, 0.04); dirty = true; }
+  const turn = clamp((R.x - cx) / (500 * S), -1, 1);
+  if (Math.abs(turn - headTurn) > 0.004) { headTurn = lerp(headTurn, turn, 0.025); dirty = true; }
+  if (!reduce.matches) { const n = Math.sin(now / 1900) * 0.5; if (Math.abs(n - nod) > 0.02) { nod = n; dirty = true; } }
   if (dirty) { dirty = false; render(); }
   requestAnimationFrame(frame);
 }
 
-/** Can the drawing hand reach this viewport point, leaning and sliding as far as it may? */
-export function canReach(x, y) {
-  const [lx, ly] = toLocal(x, y);
-  const sx = cx + SHOULDER_X * S + clamp(lx - cx - SHOULDER_X * S, -SHIFT * S, SHIFT * S);
-  const sy = vh - HEAD_VIS * S + SHOULDER_Y * S - LEAN * S;
-  return Math.hypot(lx - sx, ly - sy) <= reachOf(arms.R) * 0.97;
-}
-/** Move the drawing hand's tip to a viewport point along a slightly lifted arc. */
-export function moveTo(x, y, ms = 110) {
-  const a = arms.R; const x0 = a.x, y0 = a.y;
-  const [tx, ty] = toLocal(x, y);
-  const lift = Math.min(18, Math.hypot(tx - x0, ty - y0) * 0.06);
-  return tween(ms, (k) => { const e = easeInOut(k); a.x = lerp(x0, tx, e); a.y = lerp(y0, ty, e) + Math.sin(e * Math.PI) * lift; });
-}
-/** Put the tip at a viewport point now (used while following a stroke). */
-export function at(x, y) { const [lx, ly] = toLocal(x, y); arms.R.x = lx; arms.R.y = ly; dirty = true; }
-export function use(fig) { arms.R.fig = fig; dirty = true; }
-
-export function setMode(m) {
-  if (m === mode) return;
-  mode = m;
-  body.backTo = m === 'desk' ? 0 : 90 * S; // sits back a little and watches
-  applyRest();
-}
-
 export function init() {
   layout();
-  window.addEventListener('resize', () => { layout(); applyRest(); });
+  window.addEventListener('resize', layout);
   requestAnimationFrame(frame);
 }

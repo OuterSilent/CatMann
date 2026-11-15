@@ -74,11 +74,14 @@ body.is-gallery #sheet > .view, body.is-gallery #sheet > footer { display: none;
   #nav ul { flex-direction: column; align-items: flex-end; gap: 2px; }
   #nav a { font: 300 var(--fs-lg)/1.2 var(--f-display); }
 }
+/* Phones: no room beside his arms, so the signature and the menu sit in a row under the drawing. */
 @media (max-width: 560px) {
+  .top { grid-template-columns: minmax(0, 1fr) auto; align-items: end; height: calc(var(--band-in, 300px) + var(--s-12)); padding-top: 0; }
+  .top .right { grid-column: 2; gap: 12px; }
+  .sig { font-size: 1.5rem; }
   #lang { gap: .5em; }
-  .sig { font-size: 1.25rem; white-space: normal; line-height: .95; max-width: 6.2em; }
-  .sig span { display: block; font-size: .7em; }
-  .top .right { gap: 12px; justify-content: flex-end; }
+  #nav { top: calc(var(--band-in, 300px) + var(--s-12)); }
+  body.is-gallery .top { height: calc(var(--head-b, 120px) + var(--s-12)); padding-bottom: var(--s-2); }
 }
 
 /* ---------- views ---------- */
@@ -174,16 +177,8 @@ footer .sig { color: var(--c-ink); font-size: 1.5rem; }
 
 /* ---------- fixed cast ---------- */
 #artist { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 6; pointer-events: none; overflow: hidden; }
-#scrap { position: fixed; z-index: 5; background: var(--c-paper); box-shadow: 0 0 0 1px var(--c-hair), 1px 3px 8px rgb(var(--c-shadow) / .1); pointer-events: none; transition: opacity .4s, transform .5s var(--ease-out); }
+#scrap { position: fixed; z-index: 5; background: var(--c-paper); box-shadow: 0 0 0 1px var(--c-hair), 1px 3px 8px rgb(var(--c-shadow) / .1); pointer-events: none; will-change: transform; }
 #scrap canvas { width: 100%; height: 100%; display: block; }
-body.is-gallery #scrap, body.is-reading #scrap { opacity: 0; transform: translateY(-40px); }
-#cat { position: fixed; z-index: 7; bottom: max(6px, env(safe-area-inset-bottom, 0px)); right: clamp(4px, 1.4vw, 28px); width: clamp(84px, 8.5vw, 140px); }
-#cat svg { width: 100%; height: auto; display: block; overflow: visible; }
-#cat .pose { transition: opacity .35s; transform-origin: 50% 60%; animation: breathe 4.2s ease-in-out infinite; }
-#cat .pose[data-off] { opacity: 0; }
-#cat .purr { position: absolute; right: 92%; top: 30%; font: 500 1.2rem/1 var(--f-hand); color: var(--c-ink-soft); opacity: 0; transition: opacity .3s; white-space: nowrap; }
-#cat.awake .purr { opacity: 1; }
-@keyframes breathe { 50% { transform: scale(1.018, 1.03); } }
 
 /* ---------- small screens ---------- */
 @media (max-width: 720px) {

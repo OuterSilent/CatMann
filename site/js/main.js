@@ -3,7 +3,6 @@ import * as R from './rough.js';
 import * as artist from './artist.js';
 import * as ink from './ink.js';
 import * as doodle from './doodle.js';
-import * as cat from './cat.js';
 import * as desk from './desk.js';
 import * as gallery from './gallery.js';
 
@@ -34,18 +33,18 @@ function applyLang() {
   renderShop(); gallery.setLang(lang);
 }
 let langMark = null;
-function strikeOther(pen) {
+function strikeOther() {
   ink.fadeOut(langMark);
   const other = $(`#lang span[data-l="${lang === 'it' ? 'en' : 'it'}"]`);
   const b = ink.textBox(other);
   langMark = ink.group();
-  return ink.stroke(R.line(b.x - 3, b.y + b.h * 0.58, b.x + b.w + 3, b.y + b.h * 0.42, 0.6), langMark, 120, { pen });
+  return ink.stroke(R.line(b.x - 3, b.y + b.h * 0.58, b.x + b.w + 3, b.y + b.h * 0.42, 0.6), langMark, 120);
 }
 async function toggleLang() {
   lang = lang === 'it' ? 'en' : 'it';
   store.set('cm-lang', lang);
   applyLang();
-  await strikeOther(true);
+  await strikeOther();
   placeCurrentMark();
   const view = $('.view:not([hidden])');
   const h = view && view.querySelector('[data-write]');
@@ -81,7 +80,7 @@ function placeCurrentMark() {
   R.seed(current.length * 97 + 3);
   const b = ink.textBox(a);
   currentMark = ink.group('red');
-  ink.stroke(R.ellipse(b.x + b.w / 2, b.y + b.h / 2, b.w / 2 + 11, b.h / 2 + 5, 1.12, 0.9), currentMark, 240, { pen: false });
+  ink.stroke(R.ellipse(b.x + b.w / 2, b.y + b.h / 2, b.w / 2 + 11, b.h / 2 + 5, 1.12, 0.9), currentMark, 240);
 }
 
 async function go(name, { first = false } = {}) {
@@ -90,8 +89,7 @@ async function go(name, { first = false } = {}) {
   const out = current && views[current], inn = views[name];
   closeMenu();
   hoverOff();
-  artist.acquire();
-  try {
+  {
     if (out && !first && current !== 'opere') await ink.erase(out);
     if (token !== navToken) return;
     for (const v of Object.values(views)) v.hidden = true;
@@ -100,14 +98,11 @@ async function go(name, { first = false } = {}) {
     const isGallery = name === 'opere';
     document.body.classList.toggle('is-gallery', isGallery);
     window.scrollTo(0, 0);
-    document.body.classList.remove('is-reading');
-    artist.setMode(isGallery ? 'gallery' : (window.scrollY > 60 ? 'reading' : 'desk'));
     if (isGallery) gallery.show(); else gallery.hide();
     desk.draw();
     placeCurrentMark();
-    cat.wake(2400);
-    if (!isGallery) await ink.reveal(inn, { pen: !first });
-  } finally { artist.release(); }
+    if (!isGallery) await ink.reveal(inn);
+  }
 }
 window.addEventListener('hashchange', () => go(nameFromHash()));
 
@@ -147,7 +142,7 @@ document.addEventListener('focusin', (e) => {
   const el = e.target;
   if (!el.matches?.(':focus-visible') || !el.closest('#sheet') || el.matches('input, textarea')) return;
   R.seed((performance.now() * 1000) | 0);
-  ink.mark(el.matches('.btn, .ministack') ? el : el, { kind: 'box', pen: !artist.isBusy(), ms: 160 }).then((g) => { focusG = g; });
+  ink.mark(el.matches('.btn, .ministack') ? el : el, { kind: 'box', ms: 160 }).then((g) => { focusG = g; });
 });
 document.addEventListener('focusout', () => { ink.fadeOut(focusG); focusG = null; });
 
@@ -160,7 +155,7 @@ async function openMenu() {
   placeCurrentMark();
   const links = $$('#nav a');
   links.forEach((a) => { a.style.clipPath = 'inset(0 100% 0 0)'; });
-  for (const a of links) await ink.write(a, ink.D.menu / links.length - 40, { pen: true });
+  for (const a of links) await ink.write(a, ink.D.menu / links.length - 40);
   links.forEach((a) => { a.style.clipPath = ''; });
 }
 menuBtn.addEventListener('click', () => (nav.hidden ? openMenu() : closeMenu()));
@@ -172,7 +167,7 @@ $('#form').addEventListener('submit', (e) => {
   e.preventDefault();
   const note = $('#form-note');
   note.textContent = $('#f-msg').value.trim() ? tr('contact.done') : tr('contact.empty');
-  ink.write(note, 320, { pen: true });
+  ink.write(note, 320);
 });
 
 // ---------- room for the artist ----------
@@ -182,17 +177,9 @@ function fitBand() {
   const sheetTop = $('#sheet').getBoundingClientRect().top + window.scrollY;
   root.setProperty('--head-w', `${Math.round(artist.bodyHalf() * 2 + 16)}px`);
   root.setProperty('--row-top', `${Math.max(14, Math.round(artist.headBottom() * 0.36 - sheetTop))}px`);
+  root.setProperty('--head-b', `${Math.round(artist.headBottom() * 1.3 - sheetTop)}px`);
   root.setProperty('--band-in', `${Math.round(doodle.bottom() + 34 - sheetTop)}px`);
 }
-
-// ---------- reading further down: the artist sits back and the scrap goes away ----------
-function onScroll() {
-  if (current === 'opere') return;
-  const reading = window.scrollY > 60;
-  document.body.classList.toggle('is-reading', reading);
-  artist.setMode(reading ? 'reading' : 'desk');
-}
-window.addEventListener('scroll', onScroll, { passive: true });
 
 // ---------- start ----------
 function start() {
@@ -207,11 +194,10 @@ function start() {
   applyLang();
   syncMenu();
   doodle.init(fitBand);
-  cat.init();
   $('#lang').addEventListener('click', toggleLang);
-  go(nameFromHash(), { first: true }).then(() => strikeOther(false));
-  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { placeCurrentMark(); strikeOther(false); }, 160); });
-  document.fonts?.ready.then(() => { placeCurrentMark(); strikeOther(false); });
+  go(nameFromHash(), { first: true }).then(() => strikeOther());
+  let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(() => { placeCurrentMark(); strikeOther(); }, 160); });
+  document.fonts?.ready.then(() => { placeCurrentMark(); strikeOther(); });
 }
-window.__cm = { gallery, artist, ink, go };
+window.__cm = { gallery, artist, ink, go, doodle };
 start();

@@ -1,7 +1,7 @@
 # CatMann — sito di Cosmin Mann
 
 Sito portfolio per l'artista **Cosmin Mann** (Instagram `@cosmin_mann`): presenta l'artista e le sue opere.
-Il sito è un foglio su un tavolo visto dall'alto: l'artista ne ridisegna l'interfaccia a ogni interazione.
+Il sito è un foglio su un tavolo visto dall'alto: in cima l'artista disegna il ritratto di un gatto, un pelo alla volta.
 
 ## Leggi prima di lavorare
 

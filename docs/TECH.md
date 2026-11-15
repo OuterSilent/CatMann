@@ -11,13 +11,13 @@ site/
   css/site.css        layout e componenti
   js/main.js          avvio, lingua, navigazione, hover/focus/press
   js/artist.js        testa e braccia: cinematica inversa, tubi delle maniche
-  js/ink.js           tratti che si disegnano con la matita sulla punta, cornici a mano
+  js/ink.js           tratti che si tracciano da soli, cornici a mano
   js/rough.js         geometria "a mano" (linee, rettangoli, ellissi, tratteggi)
   js/gallery.js       pila di disegni con ricciolo (WebGL)
-  js/doodle.js        scarabocchio generativo
-  js/cat.js, desk.js  gatto, tavolo e oggetti
+  js/doodle.js        il ritratto del gatto, il foglio dell'artista e le sue mani
+  js/desk.js          tavolo e oggetti
   js/content.js       testi inglesi, elenco delle opere
-  js/figures.js       GENERATO: tracciati di mani, testa e gatto
+  js/figures.js       GENERATO: tracciati di mani e testa
 tools/
   trace/              ricalco a linea centrale dei riferimenti (Python)
   extract_placeholders.py   immagini provvisorie dallo screenshot Instagram
@@ -26,12 +26,13 @@ tools/
 
 ## Come funziona il ridisegno
 
-`ink.stroke()` crea un tracciato SVG nel livello `#ink` del foglio e lo rivela con `stroke-dashoffset`; a ogni frame chiede ad `artist` di mettere la punta della matita sul punto raggiunto.
-`artist` risolve il braccio (spalla, gomito, mano) e ruota la mano ricalcata attorno al gomito. La manica superiore è una linea spessa con contorno, quindi può allungarsi.
+`ink.stroke()` crea un tracciato SVG nel livello `#ink` del foglio e lo rivela con `stroke-dashoffset`. La mano dell'artista non c'entra.
+`doodle` genera il ritratto (mappa di toni, verso del pelo, elenco ordinato di tratti), muove la matita tratto per tratto e dice ad `artist` dove sono le due mani; gestisce anche il foglio che scorre con la pagina e viene messo via.
+`artist` risolve le braccia (spalla, gomito, mano) con lunghezze fisse e disegna maniche e pieghe.
 
 ## Performance e accessibilità
 
-- JS circa 105 KB gzip, di cui la maggior parte sono i tracciati delle figure.
+- JS circa 77 KB gzip, di cui la maggior parte sono i tracciati delle figure.
 - Testo vero, navigazione ad ancore (`#opere`, `#chi-e`, `#negozio`, `#contatti`), focus visibile disegnato a mano, `aria-current` sulla voce attiva.
 - La galleria ha pulsanti, frecce da tastiera e un elenco testuale nascosto delle opere.
 - `prefers-reduced-motion`: nessun movimento.

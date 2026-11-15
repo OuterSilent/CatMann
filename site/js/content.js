@@ -14,7 +14,7 @@ export const EN = {
   'about.eyebrow': 'About', 'about.title': 'Cosmin Mann, <em>artist.</em>',
   'about.note': 'the eyes always come first',
   'about.p1': 'He draws hyperrealistic portraits in graphite, almost always cats. He starts from a photo on his phone and rebuilds it hair by hair, until only a gaze is left on the paper.',
-  'about.p2': 'He works at café tables, coffee at hand and music in his headphones. The grey cat you see up there is his, and it usually sleeps on the wrong sheet.',
+  'about.p2': 'He works at café tables, coffee at hand and music in his headphones. The grey cat is his, and it usually sleeps on the wrong sheet.',
   'about.tool3': 'a lot of coffee', 'about.tool4': 'one cat',
   'about.portraitAlt': 'Cosmin Mann behind a paper mask with cat eyes drawn in graphite',
   'about.snap1': 'Cosmin at work on a drawing, headphones on', 'about.snap2': 'Cosmin with his grey cat',
@@ -28,7 +28,6 @@ export const EN = {
   'contact.done': 'Noted. The form is a mock-up: for now, write to him on Instagram.',
   'contact.empty': 'Write at least a line.',
   'footer.note': 'Preview · provisional texts and images',
-  'cat.label': "Cosmin's cat",
   'g.prev': 'Previous drawing', 'g.next': 'Next drawing', 'g.hint': 'drag the sheet', 'g.of': 'of',
 };
 export const IT_EXTRA = {

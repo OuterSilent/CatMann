@@ -1,6 +1,6 @@
-// "Redrawing": every mark is a pencil stroke whose growing end is where the artist's pencil is.
+// Pencil marks of the page: strokes that draw themselves. The artist's hands stay on his own drawing.
 import * as R from './rough.js';
-import * as artist from './artist.js';
+import { tween } from './artist.js';
 
 const NS = 'http://www.w3.org/2000/svg';
 const sheet = document.getElementById('sheet');
@@ -30,57 +30,24 @@ const toView = (x, y) => { const b = sheet.getBoundingClientRect(); return [b.le
 export function group(cls = '') { const g = document.createElementNS(NS, 'g'); if (cls) g.setAttribute('class', cls); ink.appendChild(g); return g; }
 export function fadeOut(g) { if (!g || !g.isConnected) return; g.classList.add('out'); setTimeout(() => g.remove(), 220); }
 
-let penToken = 0;
-/**
- * Draw path data as one stroke. With `pen`, the artist's pencil travels to the start and follows the growing end.
- * Resolves when the stroke is complete. A newer pen stroke takes the pencil away, the older one still finishes.
- */
-export async function stroke(d, parent, ms = D.mark, { pen = true, cls = '', travel = 90 } = {}) {
+/** Draw path data as one stroke that grows from its start. Resolves when the stroke is complete. */
+export async function stroke(d, parent, ms = D.mark, { cls = '' } = {}) {
   const p = document.createElementNS(NS, 'path');
   p.setAttribute('d', d); if (cls) p.setAttribute('class', cls);
   parent.appendChild(p);
   if (reduce.matches) return p;
   const len = p.getTotalLength();
   p.style.strokeDasharray = len; p.style.strokeDashoffset = len;
-  const mine = pen ? ++penToken : -1;
-  if (pen) {
-    artist.acquire();
-    const s = p.getPointAtLength(0);
-    await artist.moveTo(...toView(s.x, s.y), travel);
-  }
-  await artist.tween(ms, (k) => {
-    p.style.strokeDashoffset = len * (1 - k);
-    if (pen && mine === penToken) { const q = p.getPointAtLength(len * k); artist.at(...toView(q.x, q.y)); }
-  });
+  await tween(ms, (k) => { p.style.strokeDashoffset = len * (1 - k); });
   p.style.strokeDasharray = '';
-  if (pen) artist.release();
   return p;
 }
 
-/** Let the pencil run along a list of sheet points without leaving a mark (used while text is revealed). */
-export async function glide(pts, ms, { travel = 90, onStep } = {}) {
-  const p = document.createElementNS(NS, 'path');
-  p.setAttribute('d', R.smooth(pts));
-  const len = p.getTotalLength();
-  const mine = ++penToken;
-  artist.acquire();
-  const s = p.getPointAtLength(0);
-  await artist.moveTo(...toView(s.x, s.y), travel);
-  await artist.tween(ms, (k) => {
-    if (onStep) onStep(k);
-    if (mine === penToken) { const q = p.getPointAtLength(len * k); artist.at(...toView(q.x, q.y)); }
-  });
-  artist.release();
-}
-
 /** Reveal an element left to right as if it were being written. */
-export async function write(el, ms = D.write, { pen = true } = {}) {
+export async function write(el, ms = D.write) {
   if (reduce.matches) return;
-  const b = textBox(el);
   el.style.clipPath = 'inset(-10% 100% -10% -2%)';
-  const step = (k) => { el.style.clipPath = `inset(-10% ${(1 - k) * 100}% -10% -2%)`; };
-  if (pen) await glide(R.writePts(b.x, b.y, b.w, b.h), ms, { onStep: step });
-  else await artist.tween(ms, step);
+  await tween(ms, (k) => { el.style.clipPath = `inset(-10% ${(1 - k) * 100}% -10% -2%)`; });
   el.style.clipPath = '';
 }
 
@@ -99,13 +66,13 @@ export function markPath(kind, b) {
     default: return [];
   }
 }
-export async function mark(el, { kind, cls = '', pen = true, ms = D.mark } = {}) {
+export async function mark(el, { kind, cls = '', ms = D.mark } = {}) {
   if (!kind) { do { kind = R.pick(KINDS); } while (kind === lastKind); lastKind = kind; }
   const g = group(`${kind === 'hatch' ? 'soft ' : ''}${cls}`);
   g.dataset.kind = kind;
   const paths = markPath(kind, textBox(el));
   // draw without awaiting the caller: the mark is never in the way of a click
-  (async () => { for (const [i, d] of paths.entries()) await stroke(d, g, ms / paths.length, { pen, travel: i ? 50 : 90 }); })();
+  (async () => { for (const d of paths) await stroke(d, g, ms / paths.length); })();
   return g;
 }
 
@@ -113,7 +80,7 @@ export async function mark(el, { kind, cls = '', pen = true, ms = D.mark } = {})
 export async function press(el) {
   const b = box(el);
   const g = group('soft');
-  await stroke(R.hatch(b.x + 4, b.y + 4, b.w - 12, b.h - 8, 8, 9), g, D.press, { travel: 60 });
+  await stroke(R.hatch(b.x + 4, b.y + 4, b.w - 12, b.h - 8, 8, 9), g, D.press);
   setTimeout(() => fadeOut(g), 500);
 }
 
@@ -136,34 +103,20 @@ export function frames(root = document) {
   root.querySelectorAll('.framed').forEach((el, i) => { el.dataset.seed = i; drawFrame(el); ro.observe(el); });
 }
 
-/** Staggered entrance of a view: heading written by the pencil, frames drawn, the rest fades in. */
-export async function reveal(view, { pen = true } = {}) {
+/** Staggered entrance of a view: heading written, frames drawn, the rest fades in. */
+export async function reveal(view) {
   view.querySelectorAll('.fade, .framed').forEach((el, i) => el.style.setProperty('--i', Math.min(i, 9)));
   view.classList.remove('enter'); void view.offsetWidth; view.classList.add('enter');
   setTimeout(() => view.classList.remove('enter'), 1600);
   if (reduce.matches) return;
   const heads = [...view.querySelectorAll('[data-write]')].filter((h) => h.offsetParent);
-  if (!heads.length) return;
-  await write(heads[0], D.write, { pen });
-  // then a quick pass along the first frame, so the hand is seen closing a box
-  const fr = [...view.querySelectorAll('.framed')].find((f) => { const r = f.getBoundingClientRect(); return r.width && r.top < innerHeight * 0.85 && r.bottom > 0; });
-  if (fr && pen) {
-    const b = box(fr);
-    await glide([[b.x, b.y + b.h], [b.x + b.w * 0.5, b.y + b.h + 2], [b.x + b.w, b.y + b.h]], 150, { travel: 110 });
-  }
+  if (heads.length) await write(heads[0], D.write);
 }
 
-/** Wipe a view away under the side of the hand (or the eraser). */
+/** Wipe a view away, left to right. */
 export async function erase(view) {
   if (reduce.matches) return;
-  const b = box(view); const vb = sheet.getBoundingClientRect();
-  const top = Math.max(b.y, -vb.top + 70), bottom = Math.min(b.y + b.h, -vb.top + innerHeight * 0.72);
-  const y0 = (top + bottom) / 2;
-  artist.use(R.rnd() < 0.5 ? 'handRsweep' : 'handReraser');
-  const pts = [];
-  for (let i = 0; i <= 6; i++) pts.push([b.x + (b.w * i) / 6, y0 + (i % 2 ? -1 : 1) * Math.min(90, (bottom - top) * 0.28)]);
   view.style.willChange = 'clip-path, opacity';
-  await glide(pts, 230, { travel: 120, onStep: (k) => { view.style.clipPath = `inset(0 0 0 ${k * 100}%)`; view.style.opacity = 1 - k * 0.6; } });
+  await tween(230, (k) => { view.style.clipPath = `inset(0 0 0 ${k * 100}%)`; view.style.opacity = 1 - k * 0.6; });
   view.style.clipPath = ''; view.style.opacity = ''; view.style.willChange = '';
-  artist.use('handRwrite');
 }
